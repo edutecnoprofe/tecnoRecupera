@@ -56,7 +56,7 @@ const UT1 = {
   ],
 
   example: {
-    title: '💡 Ejemplo resuelto',
+    title: '💡 Ejemplo 1 — Verificar una noticia viral',
     body: `<p>Encuentras en redes sociales una noticia que dice que un famoso científico ha dicho que
     las vacunas causan daño. La foto parece real. ¿Cómo verificas si es verdad?</p>
     <div class="example-highlight">
@@ -67,6 +67,49 @@ const UT1 = {
     </div>
     <p style="margin-top:.75rem">Si ninguna fuente fiable lo confirma y la imagen aparece en otro contexto, es desinformación.</p>`
   },
+
+  examples: [
+    {
+      title: '💡 Ejemplo 2 — Búsqueda avanzada con operadores',
+      body: `<p>Necesitas encontrar <strong>documentos PDF en español</strong> sobre cambio climático publicados
+      en webs de universidades, excluyendo resultados sobre política.</p>
+      <div class="example-highlight">
+        "cambio climático" filetype:pdf site:.edu -política
+      </div>
+      <p style="margin-top:.75rem">
+        <strong>"cambio climático"</strong> → frase exacta.<br>
+        <strong>filetype:pdf</strong> → solo archivos PDF.<br>
+        <strong>site:.edu</strong> → solo dominios universitarios.<br>
+        <strong>-política</strong> → excluye ese término de los resultados.
+      </p>
+      <p>Puedes combinar varios operadores en una sola búsqueda para afinarla al máximo.</p>`
+    },
+    {
+      title: '💡 Ejemplo 3 — IA vs. buscador: cuándo usar cada uno',
+      body: `<p>Tienes que hacer un trabajo sobre <strong>la última misión a Marte de la NASA</strong>.</p>
+      <p><strong>¿Usas ChatGPT o Google?</strong></p>
+      <div class="example-highlight">
+        ❌ ChatGPT → puede no conocer la misión si es posterior a su fecha de corte.<br>
+        ✅ Google → indexa noticias recientes; busca: NASA misión Marte 2024 site:nasa.gov
+      </div>
+      <p style="margin-top:.75rem">La IA es útil para <em>entender conceptos</em> (¿cómo funciona un rover?)
+      pero no para <em>hechos recientes</em>. Para eventos actuales, usa siempre un buscador y contrasta con la fuente oficial.</p>`
+    },
+    {
+      title: '💡 Ejemplo 4 — Reducir tu huella digital',
+      body: `<p>Cada vez que buscas en Google conectado a tu cuenta, se guarda tu historial y se usa
+      para mostrarte anuncios personalizados. Esto alimenta tu burbuja de filtros.</p>
+      <p><strong>Pasos para reducirlo:</strong></p>
+      <div class="example-highlight">
+        1. Usa DuckDuckGo como buscador por defecto.<br>
+        2. Cierra sesión de Google cuando no uses sus servicios.<br>
+        3. Borra las cookies del navegador periódicamente.<br>
+        4. Usa el modo privado para búsquedas sensibles (recuerda: no es anónimo total).
+      </div>
+      <p style="margin-top:.75rem">El modo privado evita que el <em>navegador</em> guarde historial local,
+      pero tu proveedor de internet y las webs que visitas sí pueden ver tu actividad.</p>`
+    },
+  ],
 
   exercises: [
     // ── BLOQUE 1: buscadores y operadores ─────────────────────────

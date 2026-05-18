@@ -105,7 +105,7 @@ const UT4 = {
   ],
 
   example: {
-    title: '💡 Ejemplo resuelto',
+    title: '💡 Ejemplo 1 — Puente de Brooklyn: identificar esfuerzos',
     body: `<p>Imagina el puente de Brooklyn (Nueva York). Es un <strong>puente colgante</strong>.
     Las torres soportan <em>compresión</em> (todo el peso las aplasta hacia abajo).
     Los cables de los que cuelga el tablero trabajan a <em>tracción</em> (están estirados).
@@ -113,6 +113,42 @@ const UT4 = {
     Cada elemento tiene un esfuerzo diferente, y el material se elige en función de eso.</p>
     <div class="example-highlight">Torre → compresión | Cable → tracción | Viga → flexión</div>`
   },
+
+  examples: [
+    {
+      title: '💡 Ejemplo 2 — Rigidizar una estantería con una diagonal',
+      body: `<p>Tienes una estantería con patas rectangulares que se tambalea hacia los lados cuando la empujas.
+      El rectángulo formado por las patas es <strong>deformable</strong>: puede convertirse en rombo sin romperse.</p>
+      <p><strong>Solución:</strong> añadir una barra diagonal entre dos esquinas opuestas.</p>
+      <div class="example-highlight">
+        Rectángulo (deformable) → añades diagonal → 2 triángulos (indeformables)
+      </div>
+      <p style="margin-top:.75rem">La diagonal convierte el rectángulo en dos triángulos.
+      El triángulo es la figura geométrica más rígida: con sus lados fijos, no puede cambiar de forma.
+      Este principio se usa en la Torre Eiffel, puentes de celosía y torres eléctricas.</p>`
+    },
+    {
+      title: '💡 Ejemplo 3 — Clasificar una estructura real',
+      body: `<p>Observa estos tres objetos. ¿Qué tipo de estructura es cada uno?</p>
+      <div class="example-highlight">
+        🏛️ Pirámide de Giza → <strong>Masiva</strong>: bloques sólidos de piedra apilados.<br>
+        🌉 Puente Golden Gate → <strong>Colgante</strong>: tablero suspendido de cables en tracción.<br>
+        🥚 Cáscara de huevo → <strong>Laminar</strong>: fina lámina curva resistente por su forma.
+      </div>
+      <p style="margin-top:.75rem">Fíjate en que la cáscara de huevo es muy delgada pero aguanta mucho peso
+      si la presión es perpendicular a su superficie. Su resistencia viene de la <em>geometría</em>, no del grosor.</p>`
+    },
+    {
+      title: '💡 Ejemplo 4 — Factor de seguridad en un puente',
+      body: `<p>Un ingeniero calcula que por un puente pasarán como máximo <strong>50 toneladas</strong> de carga.
+      Aplica un <strong>factor de seguridad de 3</strong> para cubrir imprevistos (errores de cálculo, materiales defectuosos, sobrecargas accidentales).</p>
+      <div class="example-highlight">
+        Carga de diseño = 50 t × 3 = <strong>150 toneladas</strong>
+      </div>
+      <p style="margin-top:.75rem">El puente se construye para aguantar 150 t aunque nunca vaya a soportar más de 50 t.
+      Este margen de seguridad es obligatorio en ingeniería civil y varía según el tipo de estructura y el riesgo para las personas.</p>`
+    },
+  ],
 
   exercises: [
     // ── BLOQUE 1: esfuerzos ───────────────────────────────────────

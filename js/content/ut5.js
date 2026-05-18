@@ -50,13 +50,53 @@ const UT5 = {
   ],
 
   example: {
-    title: '💡 Ejemplo resuelto',
+    title: '💡 Ejemplo 1 — Ley de Ohm básica',
     body: `<p>Una pila de <strong>6 V</strong> está conectada a una bombilla cuya resistencia es de <strong>2 Ω</strong>.
     ¿Cuánta corriente circula por el circuito?</p>
     <div class="example-highlight">I = V / R = 6 V / 2 Ω = 3 A</div>
     <p style="margin-top:.75rem">Por el circuito circulan <strong>3 amperios</strong>.
     Para medir ese valor, intercalaríamos un amperímetro en serie en cualquier punto del circuito.</p>`
   },
+
+  examples: [
+    {
+      title: '💡 Ejemplo 2 — Resistencias en serie y Ley de Ohm',
+      body: `<p>Una pila de <strong>9 V</strong> alimenta un circuito con <strong>tres resistencias en serie</strong>
+      de 1 Ω, 2 Ω y 3 Ω. ¿Cuánta corriente circula?</p>
+      <p><strong>Paso 1:</strong> En serie, las resistencias se suman.</p>
+      <div class="example-highlight">R_total = 1 + 2 + 3 = 6 Ω</div>
+      <p style="margin-top:.75rem"><strong>Paso 2:</strong> Aplica la Ley de Ohm.</p>
+      <div class="example-highlight">I = V / R = 9 V / 6 Ω = 1,5 A</div>
+      <p style="margin-top:.75rem">Por el circuito circulan <strong>1,5 amperios</strong>.
+      En serie, la misma corriente pasa por todos los componentes.</p>`
+    },
+    {
+      title: '💡 Ejemplo 3 — Conectar amperímetro y voltímetro correctamente',
+      body: `<p>Tienes una pila de 4,5 V y una resistencia de 9 Ω. Quieres medir tanto la intensidad como la tensión.</p>
+      <div class="example-highlight">
+        Amperímetro → en SERIE (intercalado en el cable del circuito)<br>
+        Voltímetro  → en PARALELO (conectado a ambos extremos de la resistencia)
+      </div>
+      <p style="margin-top:.75rem">
+        <strong>¿Por qué?</strong><br>
+        El amperímetro tiene resistencia casi cero: si lo pones en paralelo, cortocircuita el componente.<br>
+        El voltímetro tiene resistencia muy alta: si lo pones en serie, bloquea casi toda la corriente.
+      </p>
+      <p>Resultado esperado: I = 4,5 / 9 = <strong>0,5 A</strong> · V = <strong>4,5 V</strong></p>`
+    },
+    {
+      title: '💡 Ejemplo 4 — Ahorro energético con bombillas LED',
+      body: `<p>Una clase tiene <strong>12 fluorescentes de 36 W</strong> encendidos <strong>6 horas al día</strong>,
+      200 días al año. Se sustituyen por <strong>LEDs de 10 W</strong> equivalentes. ¿Cuánto se ahorra?</p>
+      <div class="example-highlight">
+        Consumo fluorescente: 12 × 36 W × 6 h × 200 días = 518 400 Wh = <strong>518,4 kWh/año</strong><br>
+        Consumo LED:          12 × 10 W × 6 h × 200 días = 144 000 Wh = <strong>144 kWh/año</strong><br>
+        Ahorro: 518,4 − 144 = <strong>374,4 kWh/año</strong>
+      </div>
+      <p style="margin-top:.75rem">A 0,15 €/kWh, el ahorro es de unos <strong>56 € al año</strong> solo en esa clase.
+      Los LEDs también duran ~3 veces más que los fluorescentes, reduciendo el coste de mantenimiento.</p>`
+    },
+  ],
 
   exercises: [
     // ── BLOQUE 1: componentes del circuito ────────────────────────

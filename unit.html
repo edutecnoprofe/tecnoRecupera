@@ -26,8 +26,8 @@
   <!-- Pestañas -->
   <div class="section-tabs">
     <button class="tab-btn active" data-tab="theory">📖 Teoría</button>
-    <button class="tab-btn" data-tab="example">💡 Ejemplo</button>
-    <button class="tab-btn" data-tab="exercises">✏️ Ejercicios</button>
+    <button class="tab-btn" data-tab="example" id="tab-example">💡 Ejemplos</button>
+    <button class="tab-btn" data-tab="exercises" id="tab-exercises">🔒 Ejercicios</button>
   </div>
 
   <!-- Panel: Teoría -->
@@ -40,9 +40,10 @@
     </div>
   </div>
 
-  <!-- Panel: Ejemplo -->
+  <!-- Panel: Ejemplos -->
   <div id="panel-example" class="section-panel">
     <div class="example-box" id="example-content"></div>
+    <div id="extra-examples"></div>
     <div style="text-align:right;margin-top:1.5rem">
       <button class="btn btn-primary" id="go-exercises-btn">
         Empezar ejercicios →
@@ -87,6 +88,41 @@
     }
   }
 
+  function _showLockMessage(tab, msg) {
+    const btn = document.getElementById('tab-' + tab);
+    if (!btn || btn.dataset.shaking) return;
+    btn.dataset.shaking = '1';
+    btn.style.transition = 'transform .1s';
+    let n = 0;
+    const iv = setInterval(() => {
+      btn.style.transform = n % 2 === 0 ? 'translateX(4px)' : 'translateX(-4px)';
+      if (++n > 5) { clearInterval(iv); btn.style.transform = ''; delete btn.dataset.shaking; }
+    }, 60);
+    // Mostrar mensaje bajo las pestañas
+    let tip = document.getElementById('tab-lock-tip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'tab-lock-tip';
+      tip.style.cssText = 'font-size:.82rem;color:#d97706;padding:.35rem .75rem;background:#fef3c7;border-radius:.4rem;margin-bottom:.5rem;display:inline-block';
+      document.querySelector('.section-tabs').insertAdjacentElement('afterend', tip);
+    }
+    tip.textContent = msg;
+    clearTimeout(tip._to);
+    tip._to = setTimeout(() => tip.remove(), 3000);
+  }
+
+  function _updateTabLocks() {
+    const exTab = document.getElementById('tab-exercises');
+    if (!exTab) return;
+    const unlocked = theoryEventSent && exampleEventSent;
+    exTab.textContent = unlocked ? '✏️ Ejercicios' : '🔒 Ejercicios';
+    exTab.style.opacity = unlocked ? '' : '0.6';
+    const exampleTab = document.getElementById('tab-example');
+    if (exampleTab) {
+      exampleTab.style.opacity = theoryEventSent ? '' : '0.6';
+    }
+  }
+
   // ── Gestión de pestañas ───────────────────────────
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b =>
@@ -94,15 +130,31 @@
     document.querySelectorAll('.section-panel').forEach(p =>
       p.classList.toggle('active', p.id === `panel-${tab}`));
 
+    if (tab === 'example' && !theoryEventSent) {
+      // Bloquear: deben leer teoría primero
+      _showLockMessage('example', '📖 Lee primero la Teoría antes de ver los Ejemplos.');
+      return;
+    }
+    if (tab === 'exercises' && (!theoryEventSent || !exampleEventSent)) {
+      // Bloquear: deben pasar por teoría y ejemplo
+      const missing = !theoryEventSent ? 'la Teoría' : 'los Ejemplos';
+      _showLockMessage('exercises', `📖 Debes leer primero ${missing}.`);
+      return;
+    }
+
     if (tab === 'theory' && !theoryEventSent) {
       theoryEventSent = true;
       _fireEvent('teoria');
       if (currentUnit) Progress.saveVisited(currentUnit.id, 'teoria');
+      document.querySelector('[data-tab="theory"]').textContent = '📖 Teoría ✓';
+      _updateTabLocks();
     }
     if (tab === 'example' && !exampleEventSent) {
       exampleEventSent = true;
       _fireEvent('ejemplo');
       if (currentUnit) Progress.saveVisited(currentUnit.id, 'ejemplo');
+      document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplos ✓';
+      _updateTabLocks();
     }
     if (tab === 'exercises' && !exercisesLoaded && currentUnit) {
       exercisesLoaded = true;
@@ -159,12 +211,23 @@
       </div>
     `).join('');
 
-    // Ejemplo
+    // Ejemplo principal
     const exampleContainer = document.getElementById('example-content');
     exampleContainer.innerHTML = `
       <h3>${unit.example.title}</h3>
       ${unit.example.body}
     `;
+
+    // Ejemplos adicionales
+    if (unit.examples && unit.examples.length) {
+      document.getElementById('extra-examples').innerHTML =
+        unit.examples.map(ex => `
+          <div class="example-box" style="margin-top:1rem">
+            <h3>${ex.title}</h3>
+            ${ex.body}
+          </div>
+        `).join('');
+    }
   }
 
   // ── Inicio ────────────────────────────────────────
@@ -188,11 +251,9 @@
     }
     if (visited.ejemplo) {
       exampleEventSent = true;
-      document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplo ✓';
+      document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplos ✓';
     }
-
-    // Si teoría ya visitada, abrir teoría sin reenviar evento
-    // (ya marcado arriba, switchTab no lo reenvía)
+    _updateTabLocks();
   });
 </script>
 

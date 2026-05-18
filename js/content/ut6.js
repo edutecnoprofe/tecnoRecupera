@@ -46,7 +46,7 @@ const UT6 = {
   ],
 
   example: {
-    title: '💡 Ejemplo resuelto',
+    title: '💡 Ejemplo 1 — Las tres vistas de un cubo',
     body: `<p>Imagina un cubo de 4 cm de lado. Al obtener sus tres vistas:</p>
     <div class="example-highlight">Alzado  → cuadrado de 4×4 cm (visto de frente)
 Planta  → cuadrado de 4×4 cm (visto desde arriba)
@@ -54,6 +54,51 @@ Perfil  → cuadrado de 4×4 cm (visto desde la derecha)</div>
     <p style="margin-top:.75rem">Las tres vistas son cuadrados idénticos. Fíjate que la anchura del alzado (4 cm)
     coincide con la anchura de la planta, y la altura del alzado (4 cm) coincide con la altura del perfil.</p>`
   },
+
+  examples: [
+    {
+      title: '💡 Ejemplo 2 — Las tres vistas de un cilindro',
+      body: `<p>Toma un cilindro de <strong>diámetro 4 cm y altura 6 cm</strong> apoyado sobre su base.</p>
+      <div class="example-highlight">
+Alzado → rectángulo de 4 cm (ancho) × 6 cm (alto)
+Planta → círculo de 4 cm de diámetro
+Perfil → rectángulo de 4 cm (ancho) × 6 cm (alto)
+      </div>
+      <p style="margin-top:.75rem">
+        <strong>Comprueba las relaciones:</strong><br>
+        Alzado y planta → misma anchura (4 cm) ✓<br>
+        Alzado y perfil → misma altura (6 cm) ✓<br>
+        Planta y perfil → misma profundidad (4 cm = diámetro) ✓
+      </p>
+      <p>El perfil es idéntico al alzado porque el cilindro es simétrico.</p>`
+    },
+    {
+      title: '💡 Ejemplo 3 — Leer una escala en un plano',
+      body: `<p>En un plano técnico ves que la escala es <strong>1:20</strong> y mides con regla que
+      una pieza ocupa <strong>8 cm en el papel</strong>. ¿Cuánto mide en la realidad?</p>
+      <div class="example-highlight">
+        Escala 1:20 → 1 cm en el papel = 20 cm en la realidad<br>
+        Medida real = 8 cm × 20 = <strong>160 cm (1,6 m)</strong>
+      </div>
+      <p style="margin-top:.75rem">Las <strong>cotas</strong> escritas en el plano indican siempre la medida real,
+      independientemente de la escala. Si el plano tiene cotas, úsalas directamente; no midas con regla.</p>`
+    },
+    {
+      title: '💡 Ejemplo 4 — Identificar líneas ocultas en una vista',
+      body: `<p>Tienes una caja cúbica con un <strong>agujero cilíndrico</strong> taladrado de arriba abajo por el centro.</p>
+      <p>En la <strong>planta</strong> (vista desde arriba) verás:</p>
+      <div class="example-highlight">
+        — El cuadrado exterior del cubo (línea continua gruesa, visible)
+        — El círculo del agujero (línea continua gruesa, visible desde arriba)
+      </div>
+      <p style="margin-top:.75rem">En el <strong>alzado</strong> (vista frontal) verás:</p>
+      <div class="example-highlight">
+        — El rectángulo exterior del cubo (línea continua gruesa)
+        — Dos líneas verticales discontinuas indicando los bordes del agujero (ocultos desde el frente)
+      </div>
+      <p>Las líneas discontinuas revelan que hay geometría interior aunque no se vea desde esa dirección.</p>`
+    },
+  ],
 
   exercises: [
     // ── BLOQUE 1: vistas y su posición ───────────────────────────
