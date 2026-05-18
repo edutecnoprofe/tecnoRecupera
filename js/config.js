@@ -10,7 +10,7 @@ const CONFIG = {
 
   // URL del Google Apps Script desplegado como aplicación web
   // (Sigue el README.md — sección "Apps Script")
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxt9anwQqwegmpDK-4FNW07aftdLauaNoTFJdhCEYM6qCC6E0AubAE1nQYgIqPgUx03FQ/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx-H59pSHSOW7aFk0eS38xWM9KNJ8ZDcv7q0LuMHLso-CsfnKThi5kyQMhAhHmDoNMTsA/exec',
 
   // Contraseña del panel de profesor
   // Se envía al Apps Script para verificación — cámbiala también en Code.gs
