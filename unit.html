@@ -74,12 +74,30 @@
   // ── Mapa id → objeto de contenido ─────────────────
   const CONTENT_MAP = { ut1: UT1, ut4: UT4, ut5: UT5, ut6: UT6 };
 
+  // ── Estado global de ejercicios ───────────────────
+  let exercisesLoaded = false;
+  let currentUnit     = null;
+
   // ── Gestión de pestañas ───────────────────────────
+  // FIX: la inicialización del motor vive aquí, no en el listener del botón,
+  // para que funcione tanto desde las pestañas como desde los botones "→".
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b =>
       b.classList.toggle('active', b.dataset.tab === tab));
     document.querySelectorAll('.section-panel').forEach(p =>
       p.classList.toggle('active', p.id === `panel-${tab}`));
+
+    if (tab === 'exercises' && !exercisesLoaded && currentUnit) {
+      exercisesLoaded = true;
+      ExerciseEngine.start(
+        currentUnit,
+        document.getElementById('exercises-mount'),
+        (score, total) => {
+          document.querySelector('[data-tab="exercises"]').textContent =
+            `✅ Ejercicios (${score}/${total})`;
+        }
+      );
+    }
   }
 
   document.querySelectorAll('.tab-btn').forEach(btn =>
@@ -98,6 +116,8 @@
       return;
     }
 
+    currentUnit = unit;   // guardar referencia global para switchTab
+
     // Aplicar color de unidad a toda la página
     document.documentElement.style.setProperty(
       '--unit-color', `var(${unit.colorVar})`);
@@ -109,7 +129,7 @@
     document.getElementById('unit-title').textContent = unit.title;
     document.title = unit.title + ' · Recuperación TyD';
 
-    // Color de los botones de pestaña y "Siguiente"
+    // Color de los botones primarios
     document.querySelectorAll('.btn-primary').forEach(b =>
       b.style.background = `var(${unit.colorVar})`);
 
@@ -128,28 +148,10 @@
       <h3>${unit.example.title}</h3>
       ${unit.example.body}
     `;
-
-    // Ejercicios (se inician al cambiar a esa pestaña)
-    let exercisesLoaded = false;
-    document.querySelector('[data-tab="exercises"]').addEventListener('click', () => {
-      if (!exercisesLoaded) {
-        exercisesLoaded = true;
-        ExerciseEngine.start(
-          unit,
-          document.getElementById('exercises-mount'),
-          (score, total) => {
-            // Actualizar badge de la pestaña al terminar
-            document.querySelector('[data-tab="exercises"]').textContent =
-              `✅ Ejercicios (${score}/${total})`;
-          }
-        );
-      }
-    });
   }
 
   // ── Inicio ────────────────────────────────────────
   window.addEventListener('load', () => {
-    // Verificar sesión
     const user = Auth.getUser();
     if (!user) {
       window.location.href = 'index.html';
@@ -157,7 +159,6 @@
     }
     document.getElementById('user-name').textContent = user.name.split(' ')[0];
 
-    // Leer parámetro ?unit=
     const params = new URLSearchParams(window.location.search);
     const unitId = params.get('unit') || 'ut1';
     loadUnit(unitId);

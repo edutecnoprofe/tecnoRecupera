@@ -1,61 +1,88 @@
 /**
  * TyD 2ºESO — Google Apps Script
  * ================================
- * Backend para el registro del progreso del alumnado.
+ * Todo se gestiona via doGet() usando JSONP para compatibilidad
+ * con GitHub Pages (evita los problemas de CORS con fetch+no-cors).
+ *
+ * Parámetros de entrada (query string):
+ *   action=save   → guarda el resultado de un alumno
+ *   action=read   → devuelve todos los datos (requiere token del profesor)
+ *   callback=xxx  → nombre de la función JSONP
  *
  * CONFIGURACIÓN:
- *   1. Crea un proyecto en script.google.com y enlázalo a un Google Sheet.
- *   2. Pega este código en el editor.
- *   3. Cambia TEACHER_PASSWORD por tu contraseña real (la misma que en config.js).
- *   4. Despliega como aplicación web:
- *        Implementar → Nueva implementación → Tipo: Aplicación web
- *        Ejecutar como: Yo (tu cuenta)
- *        Quién puede acceder: Cualquier usuario
- *   5. Copia la URL de implementación y pégala en js/config.js → APPS_SCRIPT_URL.
+ *   1. Crea un proyecto en script.google.com vinculado a un Google Sheet.
+ *   2. Pega este código. Cambia TEACHER_PASSWORD.
+ *   3. Implementar → Nueva implementación → Aplicación web
+ *        Ejecutar como: Yo
+ *        Acceso: Cualquier usuario (incluso anónimo)
+ *   4. Copia la URL de implementación → js/config.js → APPS_SCRIPT_URL
+ *
+ *   ⚠️  Cada vez que edites el código debes crear una NUEVA implementación
+ *       (no "actualizar la existente") para que los cambios se apliquen.
  */
 
-// ── Configuración ──────────────────────────────────────────────────────────
 const TEACHER_PASSWORD = 'profe2025';   // ← Cámbiala por tu contraseña real
 const SHEET_NAME       = 'Progreso';
 
-// ── POST: recibe el progreso de un alumno/a ────────────────────────────────
-function doPost(e) {
+// ── Punto de entrada único ────────────────────────────────────────────────
+function doGet(e) {
+  const action   = (e.parameter.action   || '').toLowerCase();
+  const callback = e.parameter.callback  || '';
+
+  if (action === 'save') {
+    return _handleSave(e, callback);
+  }
+
+  if (action === 'read') {
+    return _handleRead(e, callback);
+  }
+
+  // Sin acción → respuesta de diagnóstico
+  return _jsonp(callback, { status: 'ok', message: 'TyD2 Apps Script activo.' });
+}
+
+// ── Guardar resultado de alumno ───────────────────────────────────────────
+function _handleSave(e, callback) {
   try {
-    const data = JSON.parse(e.postData.contents);
+    const p = e.parameter;
+
+    if (!p.email || !p.unit) {
+      return _jsonp(callback, { error: 'Faltan parámetros obligatorios (email, unit).' });
+    }
 
     const sheet = _getOrCreateSheet();
 
     // Cabeceras si la hoja está vacía
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'Fecha', 'Nombre', 'Email', 'Unidad', 'Puntuación', 'Total', '%'
-      ]);
-      sheet.getRange(1, 1, 1, 7).setFontWeight('bold');
+      sheet.appendRow(['Fecha', 'Nombre', 'Email', 'Unidad', 'Puntuación', 'Total', '%']);
+      sheet.getRange(1, 1, 1, 7)
+        .setFontWeight('bold')
+        .setBackground('#4f46e5')
+        .setFontColor('#ffffff');
+      sheet.setFrozenRows(1);
     }
 
     sheet.appendRow([
-      new Date(data.date || new Date()),
-      data.name    || '',
-      data.email   || '',
-      data.unit    || '',
-      data.score   || 0,
-      data.total   || 0,
-      data.percent || 0,
+      new Date(),                   // Fecha (hora del servidor)
+      p.name    || 'Desconocido',
+      p.email,
+      p.unit,
+      Number(p.score)   || 0,
+      Number(p.total)   || 0,
+      Number(p.percent) || 0,
     ]);
 
-    return _json({ success: true });
+    return _jsonp(callback, { success: true });
 
   } catch (err) {
-    return _json({ error: err.message });
+    return _jsonp(callback, { error: 'Error al guardar: ' + err.message });
   }
 }
 
-// ── GET: devuelve los datos al panel del profesor (JSONP) ──────────────────
-function doGet(e) {
-  const token    = e.parameter.token    || '';
-  const callback = e.parameter.callback || '';
+// ── Leer datos (panel del profesor) ──────────────────────────────────────
+function _handleRead(e, callback) {
+  const token = e.parameter.token || '';
 
-  // Verificar contraseña
   if (token !== TEACHER_PASSWORD) {
     return _jsonp(callback, { error: 'Contraseña incorrecta.' });
   }
@@ -72,9 +99,8 @@ function doGet(e) {
     const rows    = values.slice(1).map(row => {
       const obj = {};
       headers.forEach((h, i) => {
-        obj[h] = row[i] instanceof Date
-          ? row[i].toISOString()
-          : row[i];
+        // Convertir fechas a ISO string
+        obj[h] = row[i] instanceof Date ? row[i].toISOString() : row[i];
       });
       return obj;
     });
@@ -82,29 +108,24 @@ function doGet(e) {
     return _jsonp(callback, { data: rows });
 
   } catch (err) {
-    return _jsonp(callback, { error: err.message });
+    return _jsonp(callback, { error: 'Error al leer: ' + err.message });
   }
 }
 
-// ── Utilidades internas ────────────────────────────────────────────────────
+// ── Utilidades ────────────────────────────────────────────────────────────
 
 function _getOrCreateSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   return ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
 }
 
-function _json(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
 function _jsonp(callback, obj) {
   const json = JSON.stringify(obj);
-  if (callback) {
-    return ContentService
-      .createTextOutput(`${callback}(${json})`)
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-  return _json(obj);
+  const output = callback
+    ? callback + '(' + json + ')'
+    : json;
+  const mime = callback
+    ? ContentService.MimeType.JAVASCRIPT
+    : ContentService.MimeType.JSON;
+  return ContentService.createTextOutput(output).setMimeType(mime);
 }
