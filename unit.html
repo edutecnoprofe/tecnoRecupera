@@ -246,6 +246,15 @@
     loadUnit(unitId);
     _applyVisited(unitId);
 
+    // Teoría está visible por defecto — marcarla como visitada desde el inicio
+    if (!theoryEventSent) {
+      theoryEventSent = true;
+      _fireEvent('teoria');
+      Progress.saveVisited(unitId, 'teoria');
+      document.querySelector('[data-tab="theory"]').textContent = '📖 Teoría ✓';
+      _updateTabLocks();
+    }
+
     // 2. Sincronizar con Sheets en fondo (actualiza si es dispositivo nuevo)
     Progress.syncFromSheet(user.email, () => {
       _applyVisited(unitId);
