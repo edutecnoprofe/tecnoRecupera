@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperación TyD · 2.º ESO</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────── -->
+<div id="login-screen" class="login-page" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">📡</div>
+    <h1 class="login-title">Recuperación TyD</h1>
+    <p class="login-subtitle" id="login-subtitle">2.º ESO — Tecnología y Digitalización</p>
+    <div id="g-signin-btn" style="display:flex;justify-content:center"></div>
+    <p class="login-hint">Inicia sesión con tu cuenta de Google del instituto.<br>
+    Tus resultados quedarán guardados.</p>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────────── -->
+<div id="app-screen" style="display:none">
+
+  <nav class="topbar">
+    <div class="topbar-brand">📡 Recuperación TyD</div>
+    <div class="topbar-user">
+      <span id="user-name"></span>
+      <img id="user-avatar" src="" alt="avatar" style="display:none">
+      <button class="btn btn-ghost" onclick="Auth.signOut()"
+              style="padding:.3rem .8rem;font-size:.82rem">Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="greeting">
+      <h1>¡Hola, <span id="greeting-name">alumno/a</span>! 👋</h1>
+      <p>Elige una unidad para repasar la teoría y practicar los ejercicios.</p>
+    </div>
+
+    <div class="unit-grid" id="unit-grid">
+      <!-- Las tarjetas se generan en JS -->
+    </div>
+
+    <div class="teacher-link">
+      <a href="teacher.html">🔐 Acceso del profesorado</a>
+    </div>
+  </main>
+</div>
+
+<!-- ── SCRIPTS ───────────────────────────────────── -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/progress.js"></script>
+
+<script>
+  // Metadatos de cada unidad (icono, color, descripción breve)
+  const UNIT_META = {
+    ut1: {
+      title:  'Búsqueda de información en Internet',
+      icon:   '🔍',
+      color:  'var(--ut1)',
+      desc:   'Operadores de Google, tipos de archivo, cálculos y definiciones.',
+      exCount: 5,
+    },
+    ut4: {
+      title:  'Estructuras',
+      icon:   '🏗️',
+      color:  'var(--ut4)',
+      desc:   'Esfuerzos, tipos de estructuras y el triángulo indeformable.',
+      exCount: 5,
+    },
+    ut5: {
+      title:  'Introducción a la electricidad',
+      icon:   '⚡',
+      color:  'var(--ut5)',
+      desc:   'Circuitos, magnitudes eléctricas, Ley de Ohm y tipos de bombillas.',
+      exCount: 5,
+    },
+    ut6: {
+      title:  'Dibujo técnico: vistas',
+      icon:   '📐',
+      color:  'var(--ut6)',
+      desc:   'Sistema diédrico, alzado, planta, perfil y líneas ocultas.',
+      exCount: 5,
+    },
+  };
+
+  // ── Renderiza las tarjetas de unidades ─────────────
+  function renderUnitGrid(user) {
+    const grid = document.getElementById('unit-grid');
+    grid.innerHTML = '';
+
+    CONFIG.UNITS.forEach(uid => {
+      const meta = UNIT_META[uid];
+      const prog = Progress.getUnit(uid);
+      const pct  = prog.completed
+        ? Math.round((prog.score / prog.total) * 100)
+        : 0;
+      const label = prog.completed
+        ? `${prog.score}/${prog.total} correctas (${pct}%)`
+        : 'Sin empezar';
+
+      const card = document.createElement('a');
+      card.href  = `unit.html?unit=${uid}`;
+      card.className = 'unit-card';
+      card.style.setProperty('--unit-color', meta.color);
+      card.innerHTML = `
+        <span class="unit-card-icon">${meta.icon}</span>
+        <span class="unit-card-label">${uid.replace('ut', 'Unidad ').toUpperCase()}</span>
+        <span class="unit-card-title">${meta.title}</span>
+        <span class="unit-card-desc">${meta.desc}</span>
+        <div class="card-progress">
+          <div class="card-progress-bar">
+            <div class="card-progress-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="card-progress-label">${label}</div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Muestra la pantalla de la app ─────────────────
+  function showApp(user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display   = 'block';
+
+    const firstName = user.name.split(' ')[0];
+    document.getElementById('user-name').textContent     = user.name;
+    document.getElementById('greeting-name').textContent = firstName;
+    document.getElementById('login-subtitle').textContent = CONFIG.COURSE_NAME;
+
+    const avatar = document.getElementById('user-avatar');
+    if (user.picture) {
+      avatar.src = user.picture;
+      avatar.style.display = 'block';
+    }
+
+    renderUnitGrid(user);
+  }
+
+  // ── Inicialización ────────────────────────────────
+  window.addEventListener('load', () => {
+    document.getElementById('login-subtitle').textContent = CONFIG.COURSE_NAME;
+
+    // ¿Ya hay sesión guardada?
+    const existingUser = Auth.getUser();
+    if (existingUser) {
+      showApp(existingUser);
+      return;
+    }
+
+    // Mostrar pantalla de login
+    document.getElementById('login-screen').style.display = 'flex';
+
+    Auth.init((user) => showApp(user));
+    Auth.renderButton(document.getElementById('g-signin-btn'));
+    Auth.prompt();
+  });
+</script>
+
+</body>
+</html>

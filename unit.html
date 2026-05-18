@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unidad — Recuperación TyD</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="topbar-back" href="index.html">← Inicio</a>
+  <div class="topbar-user">
+    <span id="user-name" style="font-size:.85rem"></span>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- Cabecera de la unidad -->
+  <div class="unit-header">
+    <div class="unit-badge" id="unit-badge">Unidad</div>
+    <h1 class="unit-title" id="unit-title">Cargando…</h1>
+  </div>
+
+  <!-- Pestañas -->
+  <div class="section-tabs">
+    <button class="tab-btn active" data-tab="theory">📖 Teoría</button>
+    <button class="tab-btn" data-tab="example">💡 Ejemplo</button>
+    <button class="tab-btn" data-tab="exercises">✏️ Ejercicios</button>
+  </div>
+
+  <!-- Panel: Teoría -->
+  <div id="panel-theory" class="section-panel active">
+    <div id="theory-content"></div>
+    <div style="text-align:right;margin-top:1.5rem">
+      <button class="btn btn-primary" id="go-example-btn">
+        Ir al ejemplo →
+      </button>
+    </div>
+  </div>
+
+  <!-- Panel: Ejemplo -->
+  <div id="panel-example" class="section-panel">
+    <div class="example-box" id="example-content"></div>
+    <div style="text-align:right;margin-top:1.5rem">
+      <button class="btn btn-primary" id="go-exercises-btn">
+        Empezar ejercicios →
+      </button>
+    </div>
+  </div>
+
+  <!-- Panel: Ejercicios -->
+  <div id="panel-exercises" class="section-panel">
+    <div id="exercises-mount"></div>
+  </div>
+
+</main>
+
+<!-- Scripts (orden importante: config → auth → progress → content → exercises) -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/progress.js"></script>
+
+<!-- Los cuatro archivos de contenido; solo se usa el de la unidad activa -->
+<script src="js/content/ut1.js"></script>
+<script src="js/content/ut4.js"></script>
+<script src="js/content/ut5.js"></script>
+<script src="js/content/ut6.js"></script>
+
+<script src="js/exercises.js"></script>
+
+<script>
+  // ── Mapa id → objeto de contenido ─────────────────
+  const CONTENT_MAP = { ut1: UT1, ut4: UT4, ut5: UT5, ut6: UT6 };
+
+  // ── Gestión de pestañas ───────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.section-panel').forEach(p =>
+      p.classList.toggle('active', p.id === `panel-${tab}`));
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn =>
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+  document.getElementById('go-example-btn').addEventListener('click',
+    () => switchTab('example'));
+  document.getElementById('go-exercises-btn').addEventListener('click',
+    () => switchTab('exercises'));
+
+  // ── Carga de la unidad ────────────────────────────
+  function loadUnit(unitId) {
+    const unit = CONTENT_MAP[unitId];
+    if (!unit) {
+      document.getElementById('unit-title').textContent = 'Unidad no encontrada';
+      return;
+    }
+
+    // Aplicar color de unidad a toda la página
+    document.documentElement.style.setProperty(
+      '--unit-color', `var(${unit.colorVar})`);
+
+    // Cabecera
+    const badge = document.getElementById('unit-badge');
+    badge.textContent = unit.subtitle + ' · ' + unit.icon;
+    badge.style.background = `var(${unit.colorVar})`;
+    document.getElementById('unit-title').textContent = unit.title;
+    document.title = unit.title + ' · Recuperación TyD';
+
+    // Color de los botones de pestaña y "Siguiente"
+    document.querySelectorAll('.btn-primary').forEach(b =>
+      b.style.background = `var(${unit.colorVar})`);
+
+    // Teoría
+    const theoryContainer = document.getElementById('theory-content');
+    theoryContainer.innerHTML = unit.theory.map(block => `
+      <div class="theory-block" style="border-color:var(${unit.colorVar})">
+        <h3 style="color:var(${unit.colorVar})">${block.heading}</h3>
+        ${block.html}
+      </div>
+    `).join('');
+
+    // Ejemplo
+    const exampleContainer = document.getElementById('example-content');
+    exampleContainer.innerHTML = `
+      <h3>${unit.example.title}</h3>
+      ${unit.example.body}
+    `;
+
+    // Ejercicios (se inician al cambiar a esa pestaña)
+    let exercisesLoaded = false;
+    document.querySelector('[data-tab="exercises"]').addEventListener('click', () => {
+      if (!exercisesLoaded) {
+        exercisesLoaded = true;
+        ExerciseEngine.start(
+          unit,
+          document.getElementById('exercises-mount'),
+          (score, total) => {
+            // Actualizar badge de la pestaña al terminar
+            document.querySelector('[data-tab="exercises"]').textContent =
+              `✅ Ejercicios (${score}/${total})`;
+          }
+        );
+      }
+    });
+  }
+
+  // ── Inicio ────────────────────────────────────────
+  window.addEventListener('load', () => {
+    // Verificar sesión
+    const user = Auth.getUser();
+    if (!user) {
+      window.location.href = 'index.html';
+      return;
+    }
+    document.getElementById('user-name').textContent = user.name.split(' ')[0];
+
+    // Leer parámetro ?unit=
+    const params = new URLSearchParams(window.location.search);
+    const unitId = params.get('unit') || 'ut1';
+    loadUnit(unitId);
+  });
+</script>
+
+</body>
+</html>

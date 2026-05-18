@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del Profesorado · TyD</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── LOGIN PROFESOR ──────────────────────────── -->
+<div id="login-screen" class="page" style="display:none">
+  <div class="teacher-login">
+    <div style="font-size:2rem;margin-bottom:.75rem">🔐</div>
+    <h1>Panel del Profesorado</h1>
+    <p>Introduce la contraseña para ver el progreso del alumnado.</p>
+
+    <div class="form-group">
+      <label class="form-label" for="pwd-input">Contraseña</label>
+      <input type="password" id="pwd-input" class="form-input"
+             placeholder="Contraseña del profesor/a"
+             onkeydown="if(event.key==='Enter') checkPassword()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center"
+            onclick="checkPassword()">
+      Acceder al panel
+    </button>
+    <div class="form-error" id="pwd-error">Contraseña incorrecta. Inténtalo de nuevo.</div>
+    <div style="margin-top:1.25rem;text-align:center">
+      <a href="index.html" style="font-size:.85rem;color:var(--muted)">← Volver a la web del alumnado</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ──────────────────────────────── -->
+<div id="dashboard-screen" style="display:none">
+  <nav class="topbar">
+    <div class="topbar-brand">📡 Panel del profesorado</div>
+    <div class="topbar-user">
+      <a href="index.html" style="font-size:.85rem;color:var(--muted)">← Web del alumnado</a>
+      <button class="btn btn-ghost" style="padding:.3rem .8rem;font-size:.82rem"
+              onclick="logout()">Salir</button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <div class="dashboard-header">
+      <h1>Progreso del alumnado</h1>
+      <button class="btn btn-primary" onclick="refreshData()">🔄 Actualizar datos</button>
+    </div>
+
+    <!-- Estadísticas globales -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-students">—</div>
+        <div class="stat-label">Alumnos/as que han accedido</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-sessions">—</div>
+        <div class="stat-label">Unidades completadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-avg">—</div>
+        <div class="stat-label">Puntuación media</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-perfect">—</div>
+        <div class="stat-label">Resultados con 100%</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <select id="filter-unit" onchange="applyFilters()">
+        <option value="">Todas las unidades</option>
+        <option value="ut1">UT1 · Búsqueda en Internet</option>
+        <option value="ut4">UT4 · Estructuras</option>
+        <option value="ut5">UT5 · Electricidad</option>
+        <option value="ut6">UT6 · Dibujo técnico</option>
+      </select>
+      <input type="text" id="filter-name" placeholder="🔍 Buscar alumno/a…"
+             oninput="applyFilters()">
+    </div>
+
+    <!-- Estado / spinner -->
+    <div id="data-status"></div>
+
+    <!-- Tabla -->
+    <div id="table-wrap" style="overflow-x:auto">
+      <table class="progress-table" id="progress-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Alumno/a</th>
+            <th>Email</th>
+            <th>Unidad</th>
+            <th>Puntuación</th>
+            <th>%</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-info" style="margin-top:1.5rem">
+      ℹ️ Los datos también están disponibles en tu <strong>Hoja de Cálculo de Google</strong>
+      vinculada al Apps Script. Puedes exportarlos, filtrarlos y hacer gráficas directamente allí.
+    </div>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="js/config.js"></script>
+<script src="js/progress.js"></script>
+
+<script>
+  let allData    = [];
+  let teacherPwd = '';
+
+  // ── Autenticación ─────────────────────────────────
+  function checkPassword() {
+    const pwd = document.getElementById('pwd-input').value.trim();
+    if (!pwd) return;
+
+    // Comprobación rápida local para UX inmediata
+    if (pwd !== CONFIG.TEACHER_PASSWORD) {
+      document.getElementById('pwd-error').style.display = 'block';
+      return;
+    }
+
+    teacherPwd = pwd;
+    document.getElementById('pwd-error').style.display = 'none';
+    sessionStorage.setItem('teacher_pwd', pwd);
+    showDashboard();
+  }
+
+  function logout() {
+    sessionStorage.removeItem('teacher_pwd');
+    window.location.href = 'teacher.html';
+  }
+
+  // ── Mostrar dashboard ─────────────────────────────
+  function showDashboard() {
+    document.getElementById('login-screen').style.display    = 'none';
+    document.getElementById('dashboard-screen').style.display = 'block';
+    refreshData();
+  }
+
+  // ── Cargar datos ──────────────────────────────────
+  function refreshData() {
+    const status = document.getElementById('data-status');
+    status.innerHTML = '<div class="spinner"></div>';
+    document.getElementById('progress-table').style.display = 'none';
+
+    Progress.fetchTeacherData(
+      teacherPwd,
+      (data) => {
+        allData = data;
+        status.innerHTML = '';
+        renderStats(data);
+        applyFilters();
+      },
+      (err) => {
+        status.innerHTML = `
+          <div class="alert alert-info">
+            ⚠️ ${err}<br><br>
+            <strong>¿El Apps Script está configurado?</strong><br>
+            Si aún no has desplegado el Apps Script, los datos se registrarán
+            automáticamente en cuanto el alumnado complete unidades.
+            Consulta el README.md para el proceso de configuración.
+          </div>
+        `;
+      }
+    );
+  }
+
+  // ── Estadísticas ──────────────────────────────────
+  function renderStats(data) {
+    const students = new Set(data.map(r => r['Email'])).size;
+    const sessions = data.length;
+    const percents = data.map(r => Number(r['%']) || 0);
+    const avg      = percents.length
+      ? Math.round(percents.reduce((a, b) => a + b, 0) / percents.length)
+      : 0;
+    const perfect  = percents.filter(p => p === 100).length;
+
+    document.getElementById('stat-students').textContent = students || '—';
+    document.getElementById('stat-sessions').textContent = sessions || '—';
+    document.getElementById('stat-avg').textContent      = sessions ? avg + '%' : '—';
+    document.getElementById('stat-perfect').textContent  = sessions ? perfect : '—';
+  }
+
+  // ── Filtrado y tabla ──────────────────────────────
+  function applyFilters() {
+    const unitFilter = document.getElementById('filter-unit').value;
+    const nameFilter = document.getElementById('filter-name').value.toLowerCase();
+
+    const filtered = allData.filter(row => {
+      const matchUnit = !unitFilter || (row['Unidad'] || '').toLowerCase() === unitFilter;
+      const matchName = !nameFilter
+        || (row['Nombre'] || '').toLowerCase().includes(nameFilter)
+        || (row['Email']  || '').toLowerCase().includes(nameFilter);
+      return matchUnit && matchName;
+    });
+
+    renderTable(filtered);
+  }
+
+  function renderTable(rows) {
+    const table = document.getElementById('progress-table');
+    const tbody = document.getElementById('table-body');
+
+    if (rows.length === 0) {
+      table.style.display = 'none';
+      document.getElementById('data-status').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📭</div>
+          <p>No hay registros con esos filtros.</p>
+        </div>
+      `;
+      return;
+    }
+
+    document.getElementById('data-status').innerHTML = '';
+    table.style.display = 'table';
+
+    const UNIT_LABELS = {
+      ut1: 'UT1 · Búsqueda',
+      ut4: 'UT4 · Estructuras',
+      ut5: 'UT5 · Electricidad',
+      ut6: 'UT6 · Dibujo',
+    };
+
+    tbody.innerHTML = rows.map(row => {
+      const pct   = Number(row['%']) || 0;
+      const score = row['Puntuación'] || '—';
+      const total = row['Total']      || '—';
+      const unit  = row['Unidad']     || '';
+      const date  = row['Fecha']
+        ? new Date(row['Fecha']).toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' })
+        : '—';
+
+      const badgeClass = pct >= 80 ? 'badge-green' : pct >= 50 ? 'badge-yellow' : 'badge-red';
+      const barColor   = pct >= 80 ? '#16a34a'     : pct >= 50 ? '#d97706'      : '#dc2626';
+
+      return `
+        <tr>
+          <td>${row['Nombre'] || '—'}</td>
+          <td style="color:var(--muted);font-size:.85rem">${row['Email'] || '—'}</td>
+          <td>${UNIT_LABELS[unit] || unit}</td>
+          <td>
+            <div class="score-bar-wrap">
+              <div class="score-mini-bar">
+                <div class="score-mini-fill" style="width:${pct}%;background:${barColor}"></div>
+              </div>
+              ${score}/${total}
+            </div>
+          </td>
+          <td><span class="badge ${badgeClass}">${pct}%</span></td>
+          <td style="color:var(--muted);font-size:.85rem">${date}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // ── Inicio ────────────────────────────────────────
+  window.addEventListener('load', () => {
+    const saved = sessionStorage.getItem('teacher_pwd');
+    if (saved && saved === CONFIG.TEACHER_PASSWORD) {
+      teacherPwd = saved;
+      showDashboard();
+    } else {
+      document.getElementById('login-screen').style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>
