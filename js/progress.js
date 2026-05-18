@@ -186,8 +186,10 @@ const Progress = (() => {
         const type = ev['Tipo'];
         if (!unit) return;
         if (!visited[unit]) visited[unit] = {};
-        if (type === 'teoria')  visited[unit].teoria  = true;
-        if (type === 'ejemplo') visited[unit].ejemplo = true;
+        if (type === 'teoria')   visited[unit].teoria  = true;
+        if (type === 'ejemplo')  visited[unit].ejemplo = true;
+        // Si hay ejercicios, el alumno forzosamente pasó por teoría y ejemplo (tabs bloqueados)
+        if (type === 'ejercicio') { visited[unit].teoria = true; visited[unit].ejemplo = true; }
       });
       localStorage.setItem(VISITED_KEY, JSON.stringify(visited));
 
