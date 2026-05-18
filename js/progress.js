@@ -161,6 +161,65 @@ const Progress = (() => {
   // ── Lectura del panel de profesor ─────────────────
 
   /**
+   * Obtiene el historial propio del alumno y siembra localStorage si está vacío.
+   * Se llama al hacer login para sincronizar estado entre dispositivos.
+   */
+  function syncFromSheet(email, onDone) {
+    if (!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.includes('TU_ID')) {
+      if (onDone) onDone();
+      return;
+    }
+
+    const cbName = '__tyd_mine_' + Date.now();
+    const script  = document.createElement('script');
+
+    window[cbName] = function (response) {
+      delete window[cbName];
+      script.remove();
+      if (response.error || !response.events) { if (onDone) onDone(); return; }
+
+      // Repoblar secciones visitadas desde eventos
+      const visited = JSON.parse(localStorage.getItem(VISITED_KEY)) || {};
+      response.events.forEach(ev => {
+        const unit = ev['Unidad'];
+        const type = ev['Tipo'];
+        if (!unit) return;
+        if (!visited[unit]) visited[unit] = {};
+        if (type === 'teoria')  visited[unit].teoria  = true;
+        if (type === 'ejemplo') visited[unit].ejemplo = true;
+      });
+      localStorage.setItem(VISITED_KEY, JSON.stringify(visited));
+
+      // Repoblar unidades completadas desde progreso (si localStorage no las tiene ya)
+      const all = _getAll();
+      let changed = false;
+      response.completed.forEach(row => {
+        const unit = row['Unidad'];
+        if (unit && !all[unit]) {
+          all[unit] = {
+            completed: true,
+            score:  Number(row['Puntuación']) || 0,
+            total:  Number(row['Total'])      || 0,
+            completedAt: row['Fecha'] || new Date().toISOString(),
+          };
+          changed = true;
+        }
+      });
+      if (changed) _saveAll(all);
+
+      if (onDone) onDone();
+    };
+
+    script.src = CONFIG.APPS_SCRIPT_URL
+      + '?action=read_mine'
+      + '&email='    + encodeURIComponent(email)
+      + '&callback=' + cbName;
+    script.onerror = () => { delete window[cbName]; script.remove(); if (onDone) onDone(); };
+    document.head.appendChild(script);
+    setTimeout(() => { if (window[cbName]) { delete window[cbName]; script.remove(); if (onDone) onDone(); } }, 10000);
+  }
+
+  /**
    * Obtiene todos los datos del Google Sheet via JSONP.
    * @param {string}   token      - contraseña del profesor
    * @param {function} onSuccess  - callback(data: Array)
@@ -241,6 +300,7 @@ const Progress = (() => {
     getUnit, saveUnit, overallPercent,
     saveInProgress, getInProgress, clearInProgress,
     saveVisited, getVisited,
+    syncFromSheet,
     sendToSheet, sendEvent,
     fetchTeacherData, fetchTeacherEvents,
   };

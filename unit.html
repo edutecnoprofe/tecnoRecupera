@@ -241,20 +241,24 @@
 
     const params = new URLSearchParams(window.location.search);
     const unitId = params.get('unit') || 'ut1';
-    loadUnit(unitId);
 
-    // Restaurar estado visual de pestañas visitadas
-    const visited = Progress.getVisited(unitId);
+    // Sincronizar historial desde Sheets (rellena localStorage si es dispositivo nuevo)
+    Progress.syncFromSheet(user.email, () => {
+      loadUnit(unitId);
+
+      // Restaurar estado visual de pestañas visitadas
+      const visited = Progress.getVisited(unitId);
     if (visited.teoria) {
       theoryEventSent = true;
       document.querySelector('[data-tab="theory"]').textContent = '📖 Teoría ✓';
     }
-    if (visited.ejemplo) {
-      exampleEventSent = true;
-      document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplos ✓';
-    }
-    _updateTabLocks();
-  });
+      if (visited.ejemplo) {
+        exampleEventSent = true;
+        document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplos ✓';
+      }
+      _updateTabLocks();
+    }); // fin syncFromSheet
+  }); // fin load
 </script>
 
 </body>

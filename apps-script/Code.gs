@@ -30,6 +30,7 @@ function doGet(e) {
 
   if (action === 'save')        return _handleSave(e, callback);
   if (action === 'save_event')  return _handleSaveEvent(e, callback);
+  if (action === 'read_mine')   return _handleReadMine(e, callback);
   if (action === 'read')        return _handleRead(e, callback);
   if (action === 'read_events') return _handleReadEvents(e, callback);
 
@@ -102,6 +103,43 @@ function _handleSaveEvent(e, callback) {
     return _jsonp(callback, { success: true });
   } catch (err) {
     return _jsonp(callback, { error: 'Error al guardar evento: ' + err.message });
+  }
+}
+
+// ── Leer historial propio del alumno (sin token) ──────────────────────────
+function _handleReadMine(e, callback) {
+  const email = (e.parameter.email || '').toLowerCase().trim();
+  if (!email) {
+    return _jsonp(callback, { error: 'Falta el parámetro email.' });
+  }
+  try {
+    const results = { completed: [], events: [] };
+
+    const progSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    if (progSheet && progSheet.getLastRow() > 1) {
+      const vals    = progSheet.getDataRange().getValues();
+      const headers = vals[0];
+      vals.slice(1).forEach(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = row[i] instanceof Date ? row[i].toISOString() : row[i]; });
+        if ((obj['Email'] || '').toLowerCase() === email) results.completed.push(obj);
+      });
+    }
+
+    const detSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(DETAIL_SHEET_NAME);
+    if (detSheet && detSheet.getLastRow() > 1) {
+      const vals    = detSheet.getDataRange().getValues();
+      const headers = vals[0];
+      vals.slice(1).forEach(row => {
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = row[i] instanceof Date ? row[i].toISOString() : row[i]; });
+        if ((obj['Email'] || '').toLowerCase() === email) results.events.push(obj);
+      });
+    }
+
+    return _jsonp(callback, results);
+  } catch (err) {
+    return _jsonp(callback, { error: 'Error al leer historial: ' + err.message });
   }
 }
 
