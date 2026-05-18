@@ -36,7 +36,8 @@ const ExerciseEngine = (() => {
    */
   function start(unit, mount, onComplete) {
     state.unit       = unit;
-    state.exercises  = unit.exercises;
+    const pool       = unit.exercises || [];
+    state.exercises  = shuffle(pool).slice(0, Math.min(10, pool.length));
     state.current    = 0;
     state.answers    = [];
     state.score      = 0;

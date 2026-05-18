@@ -53,96 +53,163 @@ const UT4 = {
   },
 
   exercises: [
+    // ── BLOQUE 1: esfuerzos ───────────────────────────────────────
     {
-      id: 'q1',
+      id: 'q01',
       type: 'test',
       question: 'Una columna que sostiene el techo de un edificio trabaja principalmente a:',
       options: [
-        {
-          text: 'Tracción — la columna está siendo estirada.',
-          correct: false,
-          feedback: 'Incorrecto. La tracción estira el elemento. El peso del techo comprime la columna hacia abajo, no la estira.'
-        },
-        {
-          text: 'Compresión — el peso del techo la aplasta hacia abajo.',
-          correct: true,
-          feedback: '¡Correcto! El peso actúa hacia abajo y la columna resiste siendo aplastada: eso es compresión.'
-        },
-        {
-          text: 'Torsión — el techo la hace girar.',
-          correct: false,
-          feedback: 'Incorrecto. La torsión es un giro (como cuando aprietas un tornillo). Una carga vertical sobre una columna produce compresión.'
-        }
+        { text: 'Tracción — la columna está siendo estirada.', correct: false,
+          feedback: 'Incorrecto. La tracción estira el elemento. El peso del techo comprime la columna hacia abajo.' },
+        { text: 'Compresión — el peso del techo la aplasta hacia abajo.', correct: true,
+          feedback: '¡Correcto! El peso actúa hacia abajo y la columna resiste siendo aplastada: eso es compresión.' },
+        { text: 'Torsión — el techo la hace girar.', correct: false,
+          feedback: 'Incorrecto. La torsión es un giro. Una carga vertical sobre una columna produce compresión.' }
       ]
     },
     {
-      id: 'q2',
-      type: 'test',
-      question: '¿Cuál es la figura geométrica más rígida e indeformable, muy usada en estructuras?',
-      options: [
-        {
-          text: 'El cuadrado, porque tiene cuatro lados iguales.',
-          correct: false,
-          feedback: 'Incorrecto. Un cuadrado se puede deformar en rombo sin romper ningún lado. No es rígido.'
-        },
-        {
-          text: 'El círculo, porque no tiene ángulos.',
-          correct: false,
-          feedback: 'Incorrecto. El círculo es resistente en compresión (como la cúpula), pero no es la figura que se usa para crear rigidez en celosías.'
-        },
-        {
-          text: 'El triángulo, porque sus lados no pueden moverse sin romperse.',
-          correct: true,
-          feedback: '¡Correcto! Si los tres lados de un triángulo están fijos, la figura no puede deformarse. Por eso se usa en puentes y torres.'
-        }
-      ]
-    },
-    {
-      id: 'q3',
+      id: 'q02',
       type: 'test',
       question: 'Los cables de un puente colgante trabajan principalmente a:',
       options: [
-        {
-          text: 'Compresión — los cables soportan el peso aplastándose.',
-          correct: false,
-          feedback: 'Incorrecto. La compresión aplasta. Los cables no pueden resistir compresión: se doblarían. Los cables resisten siendo estirados.'
-        },
-        {
-          text: 'Tracción — los cables están estirados soportando el peso del tablero.',
-          correct: true,
-          feedback: '¡Correcto! Los cables cuelgan el tablero del puente y están permanentemente estirados: eso es tracción. Por eso se usan materiales de acero de alta resistencia.'
-        },
-        {
-          text: 'Flexión — los cables se doblan bajo el peso.',
-          correct: false,
-          feedback: 'Incorrecto. Los cables son flexibles, no rígidos, y trabajan a tracción (estirados), no a flexión.'
-        }
+        { text: 'Compresión — los cables soportan el peso aplastándose.', correct: false,
+          feedback: 'Incorrecto. Los cables no pueden resistir compresión: se doblarían. Trabajan estirados.' },
+        { text: 'Tracción — los cables están estirados soportando el peso del tablero.', correct: true,
+          feedback: '¡Correcto! Los cables cuelgan el tablero y están permanentemente estirados: eso es tracción.' },
+        { text: 'Flexión — los cables se doblan bajo el peso.', correct: false,
+          feedback: 'Incorrecto. Los cables son flexibles y trabajan a tracción (estirados), no a flexión.' }
       ]
     },
     {
-      id: 'q4',
+      id: 'q03',
       type: 'test',
-      question: 'Una viga horizontal empotrada en la pared tiene un peso colgado en su extremo libre. ¿A qué esfuerzo trabaja principalmente la viga?',
+      question: 'Una viga horizontal con un peso colgado en su extremo libre trabaja principalmente a:',
       options: [
-        {
-          text: 'Torsión — el peso la hace girar sobre sí misma.',
-          correct: false,
-          feedback: 'Incorrecto. La torsión es un giro alrededor del eje del propio elemento. Un peso colgado en el extremo dobla la viga, no la tuerce.'
-        },
-        {
-          text: 'Tracción — el peso la estira.',
-          correct: false,
-          feedback: 'Incorrecto. La tracción estira el elemento en dirección longitudinal. Un peso en el extremo de una viga la dobla.'
-        },
-        {
-          text: 'Flexión — el peso la dobla hacia abajo.',
-          correct: true,
-          feedback: '¡Correcto! El peso en el extremo crea un momento que dobla la viga. Eso es flexión. La parte superior de la viga trabaja a compresión y la inferior a tracción.'
-        }
+        { text: 'Torsión — el peso la hace girar sobre sí misma.', correct: false,
+          feedback: 'Incorrecto. Un peso colgado en el extremo dobla la viga, no la tuerce.' },
+        { text: 'Tracción — el peso la estira longitudinalmente.', correct: false,
+          feedback: 'Incorrecto. La tracción estira en dirección longitudinal. Un peso en el extremo dobla la viga.' },
+        { text: 'Flexión — el peso la dobla hacia abajo.', correct: true,
+          feedback: '¡Correcto! El peso en el extremo crea un momento que dobla la viga. Eso es flexión.' }
       ]
     },
     {
-      id: 'q5',
+      id: 'q04',
+      type: 'test',
+      question: 'Cuando aprietas un tornillo con un destornillador, ¿a qué esfuerzo sometes el tornillo?',
+      options: [
+        { text: 'Compresión — el tornillo se aplasta.', correct: false,
+          feedback: 'Incorrecto. Al apretar un tornillo lo haces girar sobre sí mismo. Eso es torsión.' },
+        { text: 'Torsión — el tornillo se retuerce al girar.', correct: true,
+          feedback: '¡Correcto! La torsión es el esfuerzo de giro alrededor del eje del elemento. El tornillo al apretarse sufre torsión.' },
+        { text: 'Cortadura — el tornillo tiende a cortarse.', correct: false,
+          feedback: 'Incorrecto. La cortadura ocurre cuando fuerzas opuestas tienden a cortar el elemento transversalmente.' }
+      ]
+    },
+    {
+      id: 'q05',
+      type: 'test',
+      question: '¿A qué esfuerzo trabajan las hojas de unas tijeras al cortar papel?',
+      options: [
+        { text: 'Flexión — las hojas se doblan.', correct: false,
+          feedback: 'Incorrecto. Las tijeras no doblan el papel, lo cortan con dos fuerzas opuestas. Eso es cortadura.' },
+        { text: 'Tracción — las hojas estiran el papel.', correct: false,
+          feedback: 'Incorrecto. Las tijeras cortan aplicando fuerzas opuestas, no estirando. Eso es cortadura.' },
+        { text: 'Cortadura — dos fuerzas opuestas tienden a cortar el material.', correct: true,
+          feedback: '¡Correcto! La cortadura se produce cuando dos fuerzas opuestas actúan transversalmente sobre el material, como en las tijeras.' }
+      ]
+    },
+    {
+      id: 'q06',
+      type: 'matching',
+      question: 'Relaciona cada esfuerzo con su descripción:',
+      pairs: [
+        { left: 'Compresión', right: 'La fuerza aplasta el elemento' },
+        { left: 'Tracción',   right: 'La fuerza estira el elemento' },
+        { left: 'Flexión',    right: 'La fuerza dobla el elemento' },
+        { left: 'Torsión',    right: 'La fuerza retuerce el elemento' }
+      ]
+    },
+    {
+      id: 'q07',
+      type: 'matching',
+      question: 'Relaciona cada elemento de estructura con el esfuerzo principal que soporta:',
+      pairs: [
+        { left: 'Cable de puente colgante', right: 'Tracción' },
+        { left: 'Columna de edificio',      right: 'Compresión' },
+        { left: 'Viga con carga central',   right: 'Flexión' },
+        { left: 'Eje de motor al girar',    right: 'Torsión' }
+      ]
+    },
+
+    // ── BLOQUE 2: tipos de estructuras ────────────────────────────
+    {
+      id: 'q08',
+      type: 'test',
+      question: '¿Cuál es la figura geométrica más rígida e indeformable, muy usada en estructuras?',
+      options: [
+        { text: 'El cuadrado, porque tiene cuatro lados iguales.', correct: false,
+          feedback: 'Incorrecto. Un cuadrado se puede deformar en rombo sin romper ningún lado.' },
+        { text: 'El círculo, porque no tiene ángulos.', correct: false,
+          feedback: 'Incorrecto. El círculo es resistente en compresión pero no es la figura para crear rigidez en celosías.' },
+        { text: 'El triángulo, porque sus lados no pueden moverse sin romperse.', correct: true,
+          feedback: '¡Correcto! Con los tres lados fijos, el triángulo no puede deformarse. Por eso se usa en puentes y torres.' }
+      ]
+    },
+    {
+      id: 'q09',
+      type: 'test',
+      question: '¿Por qué la Torre Eiffel usa estructura triangulada?',
+      options: [
+        { text: 'Porque los triángulos son más baratos de fabricar.', correct: false,
+          feedback: 'Incorrecto. El motivo no es económico. La triangulación aporta rigidez con poco material.' },
+        { text: 'Porque el triángulo es la figura más rígida: permite construir una estructura ligera y muy estable.', correct: true,
+          feedback: '¡Correcto! La celosía triangulada combina ligereza y rigidez: usa menos material que una estructura masiva pero es igualmente estable.' },
+        { text: 'Porque es el único diseño posible para estructuras de metal.', correct: false,
+          feedback: 'Incorrecto. Las estructuras de metal pueden tener muchas formas. La triangulación se elige por su rigidez.' }
+      ]
+    },
+    {
+      id: 'q10',
+      type: 'test',
+      question: '¿Cuál de estas es una estructura masiva?',
+      options: [
+        { text: 'El puente Golden Gate.', correct: false,
+          feedback: 'Incorrecto. El puente Golden Gate es una estructura colgante.' },
+        { text: 'Una presa de hormigón.', correct: true,
+          feedback: '¡Correcto! Las presas están hechas de grandes bloques macizos de hormigón: son estructuras masivas.' },
+        { text: 'Una cúpula de iglesia.', correct: false,
+          feedback: 'Incorrecto. Una cúpula es una estructura laminar: su resistencia viene de la forma curva, no de su masa.' }
+      ]
+    },
+    {
+      id: 'q11',
+      type: 'test',
+      question: '¿Por qué la cáscara de huevo es resistente si es tan delgada?',
+      options: [
+        { text: 'Porque está hecha de un material muy duro.', correct: false,
+          feedback: 'Incorrecto. La resistencia de la cáscara no viene del material sino de su forma curva continua.' },
+        { text: 'Porque es una estructura laminar: su forma curva distribuye bien las cargas.', correct: true,
+          feedback: '¡Correcto! Las estructuras laminares aprovechan la geometría para resistir. La curvatura distribuye la carga sin necesitar mucho grosor.' },
+        { text: 'Porque tiene interior macizo que la refuerza.', correct: false,
+          feedback: 'Incorrecto. La cáscara es hueca. Su resistencia viene de la forma, no del relleno.' }
+      ]
+    },
+    {
+      id: 'q12',
+      type: 'test',
+      question: 'Un puente colgante como el Golden Gate usa cables de acero para soportar el tablero. ¿Por qué acero y no madera?',
+      options: [
+        { text: 'Porque el acero es más barato.', correct: false,
+          feedback: 'Incorrecto. El acero es más caro que la madera. Se elige porque resiste mucho mejor la tracción.' },
+        { text: 'Porque el acero tiene muy alta resistencia a la tracción, soporta grandes esfuerzos de estiramiento.', correct: true,
+          feedback: '¡Correcto! El acero es ideal para cables en tracción porque puede estirarse mucho antes de romperse.' },
+        { text: 'Porque la madera no existe en tamaños suficientemente grandes.', correct: false,
+          feedback: 'Incorrecto. Existen vigas de madera muy grandes. El problema es que la madera no resiste bien la tracción en cables.' }
+      ]
+    },
+    {
+      id: 'q13',
       type: 'matching',
       question: 'Relaciona cada tipo de estructura con su ejemplo más representativo:',
       pairs: [
@@ -150,6 +217,229 @@ const UT4 = {
         { left: 'Estructura triangulada', right: 'Torre Eiffel o puente de celosía' },
         { left: 'Estructura colgante',    right: 'Puente Golden Gate' },
         { left: 'Estructura laminar',     right: 'Cáscara de huevo o cúpula' }
+      ]
+    },
+
+    // ── BLOQUE 3: cargas y estabilidad ────────────────────────────
+    {
+      id: 'q14',
+      type: 'test',
+      question: '¿Cuál es la diferencia entre una carga estática y una carga dinámica?',
+      options: [
+        { text: 'Las estáticas son pesadas y las dinámicas son ligeras.', correct: false,
+          feedback: 'Incorrecto. La diferencia es el movimiento, no el peso.' },
+        { text: 'Las estáticas no se mueven (peso propio, nieve); las dinámicas varían con el tiempo (viento, tráfico).', correct: true,
+          feedback: '¡Correcto! Las cargas estáticas son constantes y las dinámicas cambian de posición o intensidad.' },
+        { text: 'Las dinámicas solo las tienen los puentes.', correct: false,
+          feedback: 'Incorrecto. Cualquier estructura puede recibir cargas dinámicas: viento, sismos, vibración de maquinaria.' }
+      ]
+    },
+    {
+      id: 'q15',
+      type: 'test',
+      question: '¿Por qué las bases de las columnas de un edificio se hacen más anchas (zapatas)?',
+      options: [
+        { text: 'Para decorar la parte inferior de la columna.', correct: false,
+          feedback: 'Incorrecto. La zapata es funcional: reparte la carga sobre mayor superficie del terreno.' },
+        { text: 'Para repartir el peso sobre una superficie mayor del terreno y evitar hundimientos.', correct: true,
+          feedback: '¡Correcto! A mayor superficie de contacto, menor presión sobre el suelo. La zapata evita que la columna se hunda.' },
+        { text: 'Para proteger la columna del agua de lluvia.', correct: false,
+          feedback: 'Incorrecto. La impermeabilización es otra función; la zapata reparte la carga en el terreno.' }
+      ]
+    },
+    {
+      id: 'q16',
+      type: 'test',
+      question: '¿Qué ocurre con un cuadrado articulado en sus vértices cuando se aplica una fuerza lateral?',
+      options: [
+        { text: 'No se deforma porque tiene cuatro lados.', correct: false,
+          feedback: 'Incorrecto. Un cuadrado articulado se deforma fácilmente en forma de rombo.' },
+        { text: 'Se deforma en forma de rombo sin que se rompa ningún lado.', correct: true,
+          feedback: '¡Correcto! Un cuadrado articulado no es rígido: puede cambiar de forma convirtiéndose en rombo.' },
+        { text: 'Se parte por la mitad.', correct: false,
+          feedback: 'Incorrecto. Con articulaciones, los lados giran pero no se rompen. La figura pierde forma pero no se fractura.' }
+      ]
+    },
+    {
+      id: 'q17',
+      type: 'test',
+      question: 'Para rigidizar un cuadrado articulado sin añadir material externo, ¿qué puedes hacer?',
+      options: [
+        { text: 'Convertirlo en dos triángulos añadiendo una diagonal.', correct: true,
+          feedback: '¡Correcto! Añadir una diagonal divide el cuadrado en dos triángulos indeformables. Esta es la base de la triangulación en estructuras.' },
+        { text: 'Pintarlo para que los vértices queden fijos.', correct: false,
+          feedback: 'Incorrecto. La pintura no aporta rigidez estructural. La solución geométrica es la triangulación.' },
+        { text: 'Añadir más cuadrados al lado.', correct: false,
+          feedback: 'Incorrecto. Añadir más cuadrados articulados no los hace más rígidos: todos seguirían deformándose.' }
+      ]
+    },
+    {
+      id: 'q18',
+      type: 'matching',
+      question: 'Relaciona cada concepto de cargas con su ejemplo:',
+      pairs: [
+        { left: 'Carga estática',   right: 'Peso propio del edificio' },
+        { left: 'Carga dinámica',   right: 'Viento o tráfico de vehículos' },
+        { left: 'Carga puntual',    right: 'Peso de una persona en un punto' },
+        { left: 'Carga distribuida',right: 'Peso de la nieve sobre toda la cubierta' }
+      ]
+    },
+
+    // ── BLOQUE 4: materiales y propiedades ────────────────────────
+    {
+      id: 'q19',
+      type: 'test',
+      question: '¿Qué propiedad tiene el acero que lo hace ideal para cables de puentes colgantes?',
+      options: [
+        { text: 'Alta resistencia a la compresión.', correct: false,
+          feedback: 'Incorrecto. El hormigón es mejor a compresión. El acero destaca por su resistencia a la tracción.' },
+        { text: 'Alta resistencia a la tracción: aguanta grandes esfuerzos de estiramiento.', correct: true,
+          feedback: '¡Correcto! El acero tiene gran resistencia a ser estirado (tracción), lo que lo hace perfecto para cables.' },
+        { text: 'Es muy ligero, más que el aluminio.', correct: false,
+          feedback: 'Incorrecto. El acero es más denso que el aluminio. Se usa en cables por su resistencia a la tracción, no por su peso.' }
+      ]
+    },
+    {
+      id: 'q20',
+      type: 'test',
+      question: '¿Por qué el hormigón se combina con barras de acero en el "hormigón armado"?',
+      options: [
+        { text: 'Para que el hormigón sea más barato.', correct: false,
+          feedback: 'Incorrecto. Añadir acero encarece el hormigón. Se hace para mejorar sus propiedades mecánicas.' },
+        { text: 'Porque el hormigón resiste bien la compresión pero mal la tracción; el acero aporta resistencia a la tracción.', correct: true,
+          feedback: '¡Correcto! La combinación aprovecha lo mejor de cada material: hormigón en compresión, acero en tracción.' },
+        { text: 'Para que el hormigón no se seque tan rápido.', correct: false,
+          feedback: 'Incorrecto. El proceso de fraguado no tiene que ver con el armado. El acero mejora la resistencia mecánica.' }
+      ]
+    },
+    {
+      id: 'q21',
+      type: 'test',
+      question: '¿Cuál de estos materiales es más adecuado para construir una presa?',
+      options: [
+        { text: 'Acero, por su resistencia a la tracción.', correct: false,
+          feedback: 'Incorrecto. Una presa necesita resistir el empuje del agua en compresión. El hormigón es más adecuado.' },
+        { text: 'Hormigón en masa, porque resiste muy bien la compresión del agua.', correct: true,
+          feedback: '¡Correcto! Las presas trabajan principalmente a compresión y el hormigón en masa es ideal para ello.' },
+        { text: 'Madera, porque es natural y ecológica.', correct: false,
+          feedback: 'Incorrecto. La madera no resiste bien la humedad continua ni las cargas de una presa grande.' }
+      ]
+    },
+    {
+      id: 'q22',
+      type: 'matching',
+      question: 'Relaciona cada material con su propiedad estructural más destacada:',
+      pairs: [
+        { left: 'Hormigón',  right: 'Alta resistencia a la compresión' },
+        { left: 'Acero',     right: 'Alta resistencia a la tracción' },
+        { left: 'Madera',    right: 'Ligera y resistente a flexión' },
+        { left: 'Aluminio',  right: 'Ligero y resistente a la corrosión' }
+      ]
+    },
+
+    // ── BLOQUE 5: aplicaciones y análisis ────────────────────────
+    {
+      id: 'q23',
+      type: 'test',
+      question: 'Un puente de celosía tiene muchas barras triangulares. ¿Cuál es la ventaja frente a un puente macizo?',
+      options: [
+        { text: 'Es más bonito visualmente.', correct: false,
+          feedback: 'Incorrecto. La ventaja es técnica: la celosía usa mucho menos material y pesa menos manteniendo la rigidez.' },
+        { text: 'Usa menos material pero mantiene la rigidez gracias a la triangulación.', correct: true,
+          feedback: '¡Correcto! La celosía triangulada es el equilibrio perfecto entre ligereza y resistencia.' },
+        { text: 'Es más sencillo de construir.', correct: false,
+          feedback: 'Incorrecto. La celosía es más compleja de unir. La ventaja es la eficiencia estructural, no la sencillez.' }
+      ]
+    },
+    {
+      id: 'q24',
+      type: 'test',
+      question: 'La Sagrada Família de Gaudí usa columnas que se bifurcan en ramas hacia arriba. ¿Qué esfuerzo soportan principalmente?',
+      options: [
+        { text: 'Tracción — las ramas están estiradas hacia arriba.', correct: false,
+          feedback: 'Incorrecto. Las ramas soportan el peso de la cubierta que empuja hacia abajo. Eso es compresión.' },
+        { text: 'Compresión — soportan el peso de las bóvedas de arriba.', correct: true,
+          feedback: '¡Correcto! Gaudí diseñó sus estructuras para que todo trabajara a compresión, aprovechando la forma parabólica.' },
+        { text: 'Cortadura — las ramas se cortan bajo el peso.', correct: false,
+          feedback: 'Incorrecto. La cortadura implica corte transversal. Las columnas de Gaudí trabajan a compresión axial.' }
+      ]
+    },
+    {
+      id: 'q25',
+      type: 'test',
+      question: '¿Qué es el "factor de seguridad" en ingeniería estructural?',
+      options: [
+        { text: 'El número de ingenieros que revisan el proyecto.', correct: false,
+          feedback: 'Incorrecto. El factor de seguridad es un coeficiente matemático, no una cantidad de personas.' },
+        { text: 'Un coeficiente que multiplica las cargas previstas para garantizar que la estructura resista más de lo necesario.', correct: true,
+          feedback: '¡Correcto! Se diseña para soportar más carga de la esperada, por si hay errores de cálculo o situaciones imprevistas.' },
+        { text: 'El seguro de responsabilidad civil de la constructora.', correct: false,
+          feedback: 'Incorrecto. El factor de seguridad es un concepto técnico de cálculo, no un seguro legal.' }
+      ]
+    },
+    {
+      id: 'q26',
+      type: 'test',
+      question: 'En un edificio, ¿cuál de estos elementos es parte de la estructura?',
+      options: [
+        { text: 'Las ventanas de aluminio.', correct: false,
+          feedback: 'Incorrecto. Las ventanas son elementos de cerramiento, no estructurales: no soportan cargas del edificio.' },
+        { text: 'Los pilares de hormigón.', correct: true,
+          feedback: '¡Correcto! Los pilares son elementos estructurales: transmiten las cargas de los forjados al suelo.' },
+        { text: 'El papel pintado de las paredes.', correct: false,
+          feedback: 'Incorrecto. El papel pintado es acabado decorativo, sin función estructural.' }
+      ]
+    },
+    {
+      id: 'q27',
+      type: 'matching',
+      question: 'Relaciona cada estructura famosa con su tipo:',
+      pairs: [
+        { left: 'Pirámide de Giza',    right: 'Estructura masiva' },
+        { left: 'Torre Eiffel',        right: 'Estructura triangulada' },
+        { left: 'Puente Golden Gate',  right: 'Estructura colgante' },
+        { left: 'Cúpula del Panteón',  right: 'Estructura laminar' }
+      ]
+    },
+
+    // ── BLOQUE 6: preguntas integradoras ─────────────────────────
+    {
+      id: 'q28',
+      type: 'test',
+      question: 'Un ingeniero diseña un puente y calcula que soportará 100 toneladas. Aplica un factor de seguridad de 3. ¿Para cuánto lo diseña realmente?',
+      options: [
+        { text: '103 toneladas.', correct: false,
+          feedback: 'Incorrecto. Factor de seguridad es multiplicativo, no aditivo. 100 × 3 = 300 toneladas.' },
+        { text: '300 toneladas.', correct: true,
+          feedback: '¡Correcto! Factor de seguridad 3 significa diseñar para triplicar la carga prevista: 100 × 3 = 300 t.' },
+        { text: '33 toneladas.', correct: false,
+          feedback: 'Incorrecto. 100 / 3 = 33 sería dividir. El factor de seguridad multiplica la carga, no la divide.' }
+      ]
+    },
+    {
+      id: 'q29',
+      type: 'test',
+      question: 'El viento ejerce una fuerza lateral sobre un rascacielos. ¿Qué esfuerzo provoca principalmente en sus columnas?',
+      options: [
+        { text: 'Compresión vertical, igual que el peso propio.', correct: false,
+          feedback: 'Incorrecto. El viento es horizontal; provoca flexión en las columnas, no solo compresión vertical.' },
+        { text: 'Flexión — el viento dobla el edificio como si fuera una viga vertical.', correct: true,
+          feedback: '¡Correcto! El viento hace que el edificio se doble como una viga empotrada en el suelo. La flexión es el esfuerzo dominante.' },
+        { text: 'Torsión únicamente, porque el viento gira alrededor del edificio.', correct: false,
+          feedback: 'Incorrecto. El viento puede causar algo de torsión pero principalmente produce flexión en la estructura.' }
+      ]
+    },
+    {
+      id: 'q30',
+      type: 'test',
+      question: 'Al diseñar un mueble estantería, ¿qué forma darías a las patas laterales para que no se venza hacia los lados?',
+      options: [
+        { text: 'Hacerlas más gordas, con más sección.', correct: false,
+          feedback: 'Incorrecto. La sección mayor ayuda pero no resuelve la deformación lateral. La solución eficiente es triangular.' },
+        { text: 'Añadir diagonales entre las patas para triangular la estructura.', correct: true,
+          feedback: '¡Correcto! Un travesaño diagonal convierte el rectángulo en triángulos indeformables. Es la solución más eficiente.' },
+        { text: 'Usar solo dos patas en vez de cuatro.', correct: false,
+          feedback: 'Incorrecto. Reducir el número de patas hace la estructura menos estable, no más.' }
       ]
     }
   ]
