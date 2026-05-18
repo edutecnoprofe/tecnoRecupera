@@ -10,7 +10,7 @@ const CONFIG = {
 
   // URL del Google Apps Script desplegado como aplicación web
   // (Sigue el README.md — sección "Apps Script")
-  APPS_SCRIPT_URL: 'https://script.google.com/a/macros/iesjarifa.es/s/AKfycbyK5VamScg3OIE5aVL81_j_ipuCCNwW8iOo739oVfzCDK04xvCzQtJRgCW_-fkGAckjJQ/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/a/macros/iesjarifa.es/s/AKfycbyQ2r4NSELF9UTw-jwthBx10jrX6omt_TOm5FDLOTjP9ETiqTvgO0N_lTgQ9Dm_rdr0Zw/exec',
 
   // Contraseña del panel de profesor
   // Se envía al Apps Script para verificación — cámbiala también en Code.gs
