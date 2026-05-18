@@ -6,11 +6,11 @@ const CONFIG = {
   // ID de cliente OAuth 2.0 de Google Cloud Console
   // Obtén uno en: https://console.cloud.google.com/
   // (Sigue el README.md para el paso a paso)
-  GOOGLE_CLIENT_ID: 'TU_CLIENT_ID_AQUI.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID: '884696239332-71uou3nk3hec8r2sj75hdnh40oibsmle.apps.googleusercontent.com',
 
   // URL del Google Apps Script desplegado como aplicación web
   // (Sigue el README.md — sección "Apps Script")
-  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/TU_ID_AQUI/exec',
+  APPS_SCRIPT_URL: 'https://script.google.com/a/macros/iesjarifa.es/s/AKfycbyK5VamScg3OIE5aVL81_j_ipuCCNwW8iOo739oVfzCDK04xvCzQtJRgCW_-fkGAckjJQ/exec',
 
   // Contraseña del panel de profesor
   // Se envía al Apps Script para verificación — cámbiala también en Code.gs
