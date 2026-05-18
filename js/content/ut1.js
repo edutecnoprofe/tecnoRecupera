@@ -268,7 +268,7 @@ const UT1 = {
     {
       id: 'q16',
       type: 'test',
-      question: '¿Qué es un deepfake?',
+      question: '🔍 Busca en internet: ¿qué es un deepfake?',
       options: [
         { text: 'Un tipo de virus informático que borra archivos.', correct: false,
           feedback: 'Incorrecto. Un deepfake no es un virus. Es contenido audiovisual manipulado con inteligencia artificial.' },
@@ -372,7 +372,7 @@ const UT1 = {
     {
       id: 'q24',
       type: 'test',
-      question: '¿Puedes usar libremente cualquier imagen que encuentres en Google Imágenes para un trabajo?',
+      question: '🔍 Busca en internet: ¿puedes usar libremente cualquier imagen que encuentres en Google Imágenes para un trabajo?',
       options: [
         { text: 'Sí, si está en internet es de uso libre.', correct: false,
           feedback: 'Incorrecto. Que algo esté en internet no significa que sea de uso libre. La mayoría de imágenes tienen derechos de autor.' },
@@ -385,7 +385,7 @@ const UT1 = {
     {
       id: 'q25',
       type: 'test',
-      question: '¿Qué indica el símbolo Creative Commons "CC BY"?',
+      question: '🔍 Busca en internet: ¿qué indica el símbolo Creative Commons "CC BY"?',
       options: [
         { text: 'Que la obra no se puede usar sin pagar.', correct: false,
           feedback: 'Incorrecto. Creative Commons BY es una de las licencias más permisivas: permite usar la obra libremente citando al autor.' },
@@ -398,7 +398,7 @@ const UT1 = {
     {
       id: 'q26',
       type: 'test',
-      question: 'Quieres usar música de fondo para un vídeo de clase. ¿Qué tipo de licencia debes buscar?',
+      question: '🔍 Busca en internet: quieres usar música de fondo para un vídeo de clase, ¿qué tipo de licencia debes buscar?',
       options: [
         { text: 'Cualquier canción de Spotify, porque es una plataforma legal.', correct: false,
           feedback: 'Incorrecto. Spotify es una plataforma de streaming. Las canciones tienen derechos de autor y no puedes usarlas en tus vídeos.' },
@@ -411,7 +411,7 @@ const UT1 = {
     {
       id: 'q27',
       type: 'matching',
-      question: 'Relaciona cada tipo de licencia con lo que permite:',
+      question: '🔍 Busca en internet: relaciona cada tipo de licencia con lo que permite:',
       pairs: [
         { left: 'Dominio público',         right: 'Uso libre sin restricciones, derechos expirados' },
         { left: 'CC BY',                   right: 'Uso libre citando al autor' },
@@ -437,7 +437,7 @@ const UT1 = {
     {
       id: 'q29',
       type: 'test',
-      question: 'Para un trabajo de tecnología necesitas imágenes de circuitos eléctricos. ¿Dónde las buscas respetando los derechos de autor?',
+      question: '🔍 Busca en internet: para un trabajo de tecnología necesitas imágenes de circuitos eléctricos, ¿dónde las buscas respetando los derechos de autor?',
       options: [
         { text: 'Copio las primeras imágenes de Google sin mirar la licencia.', correct: false,
           feedback: 'Incorrecto. Las imágenes de Google suelen tener derechos de autor. Debes filtrar por licencia o usar repositorios libres.' },
