@@ -144,6 +144,13 @@ const ExerciseEngine = (() => {
     if (isCorrect) state.score++;
     state.answers.push({ id: ex.id, correct: isCorrect, userAnswer: option.text });
 
+    // Evento parcial al Apps Script
+    const user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    if (user && state.unit) {
+      Progress.sendEvent(user, state.unit.id, 'ejercicio',
+        ex.id + ':' + (isCorrect ? 'correcto' : 'incorrecto'));
+    }
+
     // Mostrar botón "Siguiente"
     document.getElementById('ex-next-wrap').style.display = 'flex';
   }
@@ -251,6 +258,12 @@ const ExerciseEngine = (() => {
       correct: true,
       userAnswer: 'Matching completado',
     });
+
+    // Evento parcial al Apps Script
+    const user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
+    if (user && state.unit) {
+      Progress.sendEvent(user, state.unit.id, 'ejercicio', ex.id + ':correcto');
+    }
 
     document.getElementById('ex-next-wrap').style.display = 'flex';
   }

@@ -75,7 +75,7 @@ const Progress = (() => {
   }
 
   /**
-   * Envía el resultado de la unidad al Apps Script (fire-and-forget).
+   * Envía el resultado final de la unidad al Apps Script (fire-and-forget).
    */
   function sendToSheet(user, unitId, score, total) {
     _jsonpCall({
@@ -87,6 +87,24 @@ const Progress = (() => {
       total:   total,
       percent: Math.round((score / total) * 100),
       date:    new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Envía un evento de progreso parcial al Apps Script (fire-and-forget).
+   * @param {Object} user    - {email, name}
+   * @param {string} unitId  - 'ut1', 'ut4'…
+   * @param {string} type    - 'teoria', 'ejemplo', 'ejercicio'
+   * @param {string} detail  - p.ej. 'q03:correcto' o 'q07:incorrecto'
+   */
+  function sendEvent(user, unitId, type, detail) {
+    _jsonpCall({
+      action: 'save_event',
+      email:  user.email,
+      name:   user.name,
+      unit:   unitId,
+      type:   type,
+      detail: detail || '',
     });
   }
 
@@ -138,5 +156,36 @@ const Progress = (() => {
     }, 12000);
   }
 
-  return { getUnit, saveUnit, overallPercent, sendToSheet, fetchTeacherData };
+  /**
+   * Obtiene los eventos de detalle del Google Sheet via JSONP.
+   */
+  function fetchTeacherEvents(token, onSuccess, onError) {
+    if (!CONFIG.APPS_SCRIPT_URL || CONFIG.APPS_SCRIPT_URL.includes('TU_ID')) {
+      onError('URL del Apps Script no configurada.');
+      return;
+    }
+
+    const cbName = '__tyd_events_' + Date.now();
+    const script  = document.createElement('script');
+
+    window[cbName] = function (response) {
+      delete window[cbName];
+      script.remove();
+      if (response.error) { onError(response.error); }
+      else { onSuccess(response.data || []); }
+    };
+
+    script.src = CONFIG.APPS_SCRIPT_URL
+      + '?action=read_events'
+      + '&token='    + encodeURIComponent(token)
+      + '&callback=' + cbName;
+    script.onerror = () => { delete window[cbName]; onError('Error de conexión.'); };
+    document.head.appendChild(script);
+
+    setTimeout(() => {
+      if (window[cbName]) { delete window[cbName]; script.remove(); onError('Tiempo de espera agotado.'); }
+    }, 12000);
+  }
+
+  return { getUnit, saveUnit, overallPercent, sendToSheet, sendEvent, fetchTeacherData, fetchTeacherEvents };
 })();

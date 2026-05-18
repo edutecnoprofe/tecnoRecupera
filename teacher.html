@@ -49,6 +49,15 @@
       <button class="btn btn-primary" onclick="refreshData()">🔄 Actualizar datos</button>
     </div>
 
+    <!-- Pestañas del panel -->
+    <div class="section-tabs" style="margin-bottom:1.5rem">
+      <button class="tab-btn active" onclick="showTeacherTab('resumen')">📊 Resumen</button>
+      <button class="tab-btn" onclick="showTeacherTab('detalle')">🔬 Detalle por alumno</button>
+    </div>
+
+    <!-- ══ PESTAÑA RESUMEN ══ -->
+    <div id="teacher-panel-resumen">
+
     <!-- Estadísticas globales -->
     <div class="stats-grid" id="stats-grid">
       <div class="stat-card">
@@ -106,6 +115,34 @@
       ℹ️ Los datos también están disponibles en tu <strong>Hoja de Cálculo de Google</strong>
       vinculada al Apps Script. Puedes exportarlos, filtrarlos y hacer gráficas directamente allí.
     </div>
+
+    </div><!-- /teacher-panel-resumen -->
+
+    <!-- ══ PESTAÑA DETALLE ══ -->
+    <div id="teacher-panel-detalle" style="display:none">
+
+      <div class="dashboard-header" style="margin-bottom:1rem">
+        <h2 style="font-size:1.1rem;margin:0">Actividad por alumno/a y unidad</h2>
+        <button class="btn btn-primary" onclick="refreshEvents()">🔄 Actualizar</button>
+      </div>
+
+      <div class="filter-bar">
+        <select id="filter-detail-unit" onchange="renderDetail()">
+          <option value="">Todas las unidades</option>
+          <option value="ut1">UT1 · Búsqueda en Internet</option>
+          <option value="ut4">UT4 · Estructuras</option>
+          <option value="ut5">UT5 · Electricidad</option>
+          <option value="ut6">UT6 · Dibujo técnico</option>
+        </select>
+        <input type="text" id="filter-detail-name" placeholder="🔍 Buscar alumno/a…"
+               oninput="renderDetail()">
+      </div>
+
+      <div id="detail-status"></div>
+      <div id="detail-wrap"></div>
+
+    </div><!-- /teacher-panel-detalle -->
+
   </main>
 </div>
 
@@ -115,7 +152,20 @@
 
 <script>
   let allData    = [];
+  let allEvents  = [];
   let teacherPwd = '';
+
+  // ── Pestañas del panel profesor ───────────────────
+  function showTeacherTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.toggle('active', b.textContent.toLowerCase().includes(
+        tab === 'resumen' ? 'resumen' : 'detalle')));
+    document.getElementById('teacher-panel-resumen').style.display =
+      tab === 'resumen' ? '' : 'none';
+    document.getElementById('teacher-panel-detalle').style.display =
+      tab === 'detalle' ? '' : 'none';
+    if (tab === 'detalle' && allEvents.length === 0) refreshEvents();
+  }
 
   // ── Autenticación ─────────────────────────────────
   function checkPassword() {
@@ -261,6 +311,94 @@
         </tr>
       `;
     }).join('');
+  }
+
+  // ── Detalle: cargar eventos ───────────────────────
+  function refreshEvents() {
+    const status = document.getElementById('detail-status');
+    status.innerHTML = '<div class="spinner"></div>';
+    document.getElementById('detail-wrap').innerHTML = '';
+
+    Progress.fetchTeacherEvents(
+      teacherPwd,
+      (data) => {
+        allEvents = data;
+        status.innerHTML = '';
+        renderDetail();
+      },
+      (err) => {
+        status.innerHTML = `<div class="alert alert-info">⚠️ ${err}</div>`;
+      }
+    );
+  }
+
+  // ── Detalle: renderizar tabla por alumno/unidad ───
+  function renderDetail() {
+    const unitFilter = document.getElementById('filter-detail-unit').value;
+    const nameFilter = document.getElementById('filter-detail-name').value.toLowerCase();
+
+    const filtered = allEvents.filter(r => {
+      const matchUnit = !unitFilter || (r['Unidad'] || '') === unitFilter;
+      const matchName = !nameFilter
+        || (r['Nombre'] || '').toLowerCase().includes(nameFilter)
+        || (r['Email']  || '').toLowerCase().includes(nameFilter);
+      return matchUnit && matchName;
+    });
+
+    if (filtered.length === 0) {
+      document.getElementById('detail-wrap').innerHTML = `
+        <div class="empty-state"><div class="empty-icon">📭</div>
+        <p>No hay actividad con esos filtros.</p></div>`;
+      return;
+    }
+
+    // Agrupar por email+unidad
+    const groups = {};
+    filtered.forEach(r => {
+      const key = (r['Email'] || '') + '||' + (r['Unidad'] || '');
+      if (!groups[key]) groups[key] = { nombre: r['Nombre'], email: r['Email'], unidad: r['Unidad'], eventos: [] };
+      groups[key].eventos.push(r);
+    });
+
+    const UNIT_LABELS = { ut1:'UT1 · Búsqueda', ut4:'UT4 · Estructuras', ut5:'UT5 · Electricidad', ut6:'UT6 · Dibujo' };
+
+    const html = Object.values(groups).map(g => {
+      const vioTeoria  = g.eventos.some(e => e['Tipo'] === 'teoria');
+      const vioEjemplo = g.eventos.some(e => e['Tipo'] === 'ejemplo');
+      const ejercicios = g.eventos.filter(e => e['Tipo'] === 'ejercicio');
+      const correctos  = ejercicios.filter(e => (e['Detalle'] || '').endsWith(':correcto'));
+      const incorrectos= ejercicios.filter(e => (e['Detalle'] || '').endsWith(':incorrecto'));
+
+      const exRows = ejercicios.map(e => {
+        const [qid, resultado] = (e['Detalle'] || ':').split(':');
+        const ok = resultado === 'correcto';
+        return `<span class="badge ${ok ? 'badge-green' : 'badge-red'}" style="margin:2px;font-size:.75rem">
+          ${qid} ${ok ? '✓' : '✗'}
+        </span>`;
+      }).join('');
+
+      return `
+        <div style="border:1px solid var(--border);border-radius:.6rem;padding:1rem;margin-bottom:.75rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
+            <div>
+              <strong>${g.nombre || '—'}</strong>
+              <span style="color:var(--muted);font-size:.82rem;margin-left:.5rem">${g.email || ''}</span>
+            </div>
+            <span style="font-size:.82rem;font-weight:600;color:var(--muted)">${UNIT_LABELS[g.unidad] || g.unidad}</span>
+          </div>
+          <div style="display:flex;gap:1rem;margin-top:.6rem;flex-wrap:wrap;font-size:.85rem">
+            <span>${vioTeoria  ? '✅' : '❌'} Teoría</span>
+            <span>${vioEjemplo ? '✅' : '❌'} Ejemplo</span>
+            <span>✏️ ${ejercicios.length} respuestas
+              — <span style="color:#16a34a">${correctos.length} correctas</span>
+              / <span style="color:#dc2626">${incorrectos.length} incorrectas</span>
+            </span>
+          </div>
+          ${exRows ? `<div style="margin-top:.5rem">${exRows}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    document.getElementById('detail-wrap').innerHTML = html;
   }
 
   // ── Inicio ────────────────────────────────────────

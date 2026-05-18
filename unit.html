@@ -75,18 +75,33 @@
   const CONTENT_MAP = { ut1: UT1, ut4: UT4, ut5: UT5, ut6: UT6 };
 
   // ── Estado global de ejercicios ───────────────────
-  let exercisesLoaded = false;
-  let currentUnit     = null;
+  let exercisesLoaded  = false;
+  let currentUnit      = null;
+  let theoryEventSent  = false;
+  let exampleEventSent = false;
+
+  function _fireEvent(type, detail) {
+    const user = Auth.getUser();
+    if (user && currentUnit) {
+      Progress.sendEvent(user, currentUnit.id, type, detail || '');
+    }
+  }
 
   // ── Gestión de pestañas ───────────────────────────
-  // FIX: la inicialización del motor vive aquí, no en el listener del botón,
-  // para que funcione tanto desde las pestañas como desde los botones "→".
   function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b =>
       b.classList.toggle('active', b.dataset.tab === tab));
     document.querySelectorAll('.section-panel').forEach(p =>
       p.classList.toggle('active', p.id === `panel-${tab}`));
 
+    if (tab === 'theory' && !theoryEventSent) {
+      theoryEventSent = true;
+      _fireEvent('teoria');
+    }
+    if (tab === 'example' && !exampleEventSent) {
+      exampleEventSent = true;
+      _fireEvent('ejemplo');
+    }
     if (tab === 'exercises' && !exercisesLoaded && currentUnit) {
       exercisesLoaded = true;
       ExerciseEngine.start(
