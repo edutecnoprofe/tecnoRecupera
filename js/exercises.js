@@ -36,15 +36,63 @@ const ExerciseEngine = (() => {
    */
   function start(unit, mount, onComplete) {
     state.unit       = unit;
-    const pool       = unit.exercises || [];
-    state.exercises  = shuffle(pool).slice(0, Math.min(10, pool.length));
-    state.current    = 0;
-    state.answers    = [];
-    state.score      = 0;
     state.onComplete = onComplete;
     state.colorVar   = unit.colorVar || '--primary';
     state.mount      = mount;
 
+    const saved = Progress.getInProgress(unit.id);
+
+    if (saved && saved.currentIdx > 0) {
+      // Hay progreso guardado — preguntar si continuar
+      const pool = unit.exercises || [];
+      const restored = saved.exerciseIds
+        .map(id => pool.find(e => e.id === id))
+        .filter(Boolean);
+
+      mount.innerHTML = `
+        <div class="results-card" style="text-align:center">
+          <div style="font-size:2.5rem">⏸️</div>
+          <div style="font-size:1.1rem;font-weight:600;margin:.75rem 0">
+            Dejaste esta unidad a medias
+          </div>
+          <div style="color:var(--muted);font-size:.9rem;margin-bottom:1.25rem">
+            Llevas <strong>${saved.currentIdx} de ${restored.length}</strong> ejercicios
+            (${saved.score} correctos)
+          </div>
+          <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-primary" id="btn-continue"
+                    style="background:var(${unit.colorVar})">
+              ▶ Continuar donde lo dejé
+            </button>
+            <button class="btn btn-ghost" id="btn-restart">
+              🔁 Empezar de nuevo
+            </button>
+          </div>
+        </div>`;
+
+      document.getElementById('btn-continue').addEventListener('click', () => {
+        state.exercises = restored;
+        state.current   = saved.currentIdx;
+        state.answers   = saved.answers;
+        state.score     = saved.score;
+        renderCurrentExercise();
+      });
+
+      document.getElementById('btn-restart').addEventListener('click', () => {
+        Progress.clearInProgress(unit.id);
+        _freshStart();
+      });
+    } else {
+      _freshStart();
+    }
+  }
+
+  function _freshStart() {
+    const pool      = state.unit.exercises || [];
+    state.exercises = shuffle(pool).slice(0, Math.min(10, pool.length));
+    state.current   = 0;
+    state.answers   = [];
+    state.score     = 0;
     renderCurrentExercise();
   }
 
@@ -143,6 +191,15 @@ const ExerciseEngine = (() => {
     const isCorrect = option.correct;
     if (isCorrect) state.score++;
     state.answers.push({ id: ex.id, correct: isCorrect, userAnswer: option.text });
+
+    // Guardar progreso parcial en localStorage
+    Progress.saveInProgress(
+      state.unit.id,
+      state.exercises.map(e => e.id),
+      state.current + 1,
+      state.answers,
+      state.score
+    );
 
     // Evento parcial al Apps Script
     const user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
@@ -259,6 +316,15 @@ const ExerciseEngine = (() => {
       userAnswer: 'Matching completado',
     });
 
+    // Guardar progreso parcial en localStorage
+    Progress.saveInProgress(
+      state.unit.id,
+      state.exercises.map(e => e.id),
+      state.current + 1,
+      state.answers,
+      state.score
+    );
+
     // Evento parcial al Apps Script
     const user = typeof Auth !== 'undefined' ? Auth.getUser() : null;
     if (user && state.unit) {
@@ -307,8 +373,9 @@ const ExerciseEngine = (() => {
       </div>
     `;
 
-    // Guardar en localStorage y enviar a Sheets
+    // Guardar resultado final y limpiar progreso parcial
     Progress.saveUnit(state.unit.id, score, total, state.answers);
+    Progress.clearInProgress(state.unit.id);
     const user = Auth.getUser();
     if (user) {
       Progress.sendToSheet(user, state.unit.id, score, total);

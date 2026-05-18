@@ -97,10 +97,12 @@
     if (tab === 'theory' && !theoryEventSent) {
       theoryEventSent = true;
       _fireEvent('teoria');
+      if (currentUnit) Progress.saveVisited(currentUnit.id, 'teoria');
     }
     if (tab === 'example' && !exampleEventSent) {
       exampleEventSent = true;
       _fireEvent('ejemplo');
+      if (currentUnit) Progress.saveVisited(currentUnit.id, 'ejemplo');
     }
     if (tab === 'exercises' && !exercisesLoaded && currentUnit) {
       exercisesLoaded = true;
@@ -177,6 +179,20 @@
     const params = new URLSearchParams(window.location.search);
     const unitId = params.get('unit') || 'ut1';
     loadUnit(unitId);
+
+    // Restaurar estado visual de pestañas visitadas
+    const visited = Progress.getVisited(unitId);
+    if (visited.teoria) {
+      theoryEventSent = true;
+      document.querySelector('[data-tab="theory"]').textContent = '📖 Teoría ✓';
+    }
+    if (visited.ejemplo) {
+      exampleEventSent = true;
+      document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplo ✓';
+    }
+
+    // Si teoría ya visitada, abrir teoría sin reenviar evento
+    // (ya marcado arriba, switchTab no lo reenvía)
   });
 </script>
 

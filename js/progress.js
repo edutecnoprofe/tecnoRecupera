@@ -3,7 +3,9 @@
 // =====================================================
 
 const Progress = (() => {
-  const LOCAL_KEY = 'tyd2_progress';
+  const LOCAL_KEY       = 'tyd2_progress';
+  const IN_PROGRESS_KEY = 'tyd2_inprogress';
+  const VISITED_KEY     = 'tyd2_visited';
 
   // ── Almacenamiento local ──────────────────────────
 
@@ -34,6 +36,54 @@ const Progress = (() => {
       completedAt: new Date().toISOString(),
     };
     _saveAll(all);
+  }
+
+  // ── Progreso parcial (mid-ejercicios) ────────────
+
+  /** Guarda el estado en curso: IDs de ejercicios seleccionados + respuestas dadas */
+  function saveInProgress(unitId, exerciseIds, currentIdx, answers, score) {
+    try {
+      const all = JSON.parse(localStorage.getItem(IN_PROGRESS_KEY)) || {};
+      all[unitId] = { exerciseIds, currentIdx, answers, score, savedAt: new Date().toISOString() };
+      localStorage.setItem(IN_PROGRESS_KEY, JSON.stringify(all));
+    } catch {}
+  }
+
+  /** Recupera el estado en curso de una unidad, o null */
+  function getInProgress(unitId) {
+    try {
+      const all = JSON.parse(localStorage.getItem(IN_PROGRESS_KEY)) || {};
+      return all[unitId] || null;
+    } catch { return null; }
+  }
+
+  /** Borra el estado en curso al completar */
+  function clearInProgress(unitId) {
+    try {
+      const all = JSON.parse(localStorage.getItem(IN_PROGRESS_KEY)) || {};
+      delete all[unitId];
+      localStorage.setItem(IN_PROGRESS_KEY, JSON.stringify(all));
+    } catch {}
+  }
+
+  // ── Secciones visitadas (teoría / ejemplo) ────────
+
+  /** Marca una sección como visitada */
+  function saveVisited(unitId, section) {
+    try {
+      const all = JSON.parse(localStorage.getItem(VISITED_KEY)) || {};
+      if (!all[unitId]) all[unitId] = {};
+      all[unitId][section] = true;
+      localStorage.setItem(VISITED_KEY, JSON.stringify(all));
+    } catch {}
+  }
+
+  /** Devuelve {teoria: bool, ejemplo: bool} para la unidad */
+  function getVisited(unitId) {
+    try {
+      const all = JSON.parse(localStorage.getItem(VISITED_KEY)) || {};
+      return all[unitId] || {};
+    } catch { return {}; }
   }
 
   /** % global completado */
@@ -187,5 +237,11 @@ const Progress = (() => {
     }, 12000);
   }
 
-  return { getUnit, saveUnit, overallPercent, sendToSheet, sendEvent, fetchTeacherData, fetchTeacherEvents };
+  return {
+    getUnit, saveUnit, overallPercent,
+    saveInProgress, getInProgress, clearInProgress,
+    saveVisited, getVisited,
+    sendToSheet, sendEvent,
+    fetchTeacherData, fetchTeacherEvents,
+  };
 })();
