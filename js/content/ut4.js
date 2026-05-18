@@ -11,7 +11,69 @@ const UT4 = {
       heading: '¿Qué es una estructura?',
       html: `<p>Una <strong>estructura</strong> es el conjunto de elementos que forman el armazón de un objeto u
       edificio para soportar cargas (pesos y fuerzas) sin romperse ni deformarse.
-      Sin estructura, los objetos se derrumbarían bajo su propio peso.</p>`
+      Sin estructura, los objetos se derrumbarían bajo su propio peso.</p>
+      <p>Los elementos estructurales más comunes en edificios y puentes son:</p>
+      <ul>
+        <li><strong>Columna / Pilar</strong>: elemento vertical que soporta el peso de arriba (trabaja a <em>compresión</em>).</li>
+        <li><strong>Viga</strong>: elemento horizontal que recibe cargas y las transmite a las columnas (trabaja a <em>flexión</em>).</li>
+        <li><strong>Diagonal / Arriostramiento</strong>: barra inclinada que rigidiza la estructura formando triángulos.</li>
+        <li><strong>Zapata / Cimentación</strong>: base que reparte el peso sobre el terreno.</li>
+      </ul>
+      <div style="text-align:center;margin:1.2rem 0">
+        <svg viewBox="0 0 400 280" width="100%" style="max-width:480px;font-family:inherit" aria-label="Diagrama de estructura con elementos etiquetados">
+          <!-- suelo -->
+          <rect x="20" y="245" width="360" height="12" fill="#b0906a" rx="3"/>
+          <line x1="20" y1="257" x2="380" y2="257" stroke="#8a6a44" stroke-width="1.5"/>
+          <!-- zapatas -->
+          <rect x="52" y="232" width="36" height="14" fill="#9e8060" rx="2"/>
+          <rect x="312" y="232" width="36" height="14" fill="#9e8060" rx="2"/>
+          <!-- columna izquierda -->
+          <rect x="62" y="90" width="16" height="142" fill="#4f46e5" rx="3"/>
+          <!-- columna derecha -->
+          <rect x="322" y="90" width="16" height="142" fill="#4f46e5" rx="3"/>
+          <!-- viga superior -->
+          <rect x="62" y="78" width="276" height="14" fill="#059669" rx="3"/>
+          <!-- diagonal arriostramiento -->
+          <line x1="78" y1="92" x2="322" y2="232" stroke="#d97706" stroke-width="5" stroke-linecap="round"/>
+          <!-- carga flechas -->
+          <line x1="200" y1="30" x2="200" y2="74" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arr)"/>
+          <line x1="140" y1="30" x2="140" y2="74" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)"/>
+          <line x1="260" y1="30" x2="260" y2="74" stroke="#dc2626" stroke-width="2" marker-end="url(#arr)"/>
+          <defs>
+            <marker id="arr" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+              <path d="M0,0 L3,6 L6,0" fill="#dc2626"/>
+            </marker>
+          </defs>
+          <!-- etiqueta carga -->
+          <text x="200" y="22" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="bold">CARGA</text>
+          <!-- etiqueta viga -->
+          <rect x="130" y="55" width="44" height="17" rx="3" fill="#059669"/>
+          <text x="152" y="67" text-anchor="middle" font-size="11" fill="white" font-weight="bold">VIGA</text>
+          <!-- etiqueta columna izq -->
+          <rect x="2" y="148" width="56" height="17" rx="3" fill="#4f46e5"/>
+          <text x="30" y="160" text-anchor="middle" font-size="11" fill="white" font-weight="bold">COLUMNA</text>
+          <line x1="58" y1="157" x2="62" y2="157" stroke="#4f46e5" stroke-width="1.5"/>
+          <!-- etiqueta columna der -->
+          <rect x="342" y="148" width="56" height="17" rx="3" fill="#4f46e5"/>
+          <text x="370" y="160" text-anchor="middle" font-size="11" fill="white" font-weight="bold">COLUMNA</text>
+          <line x1="338" y1="157" x2="342" y2="157" stroke="#4f46e5" stroke-width="1.5"/>
+          <!-- etiqueta diagonal -->
+          <rect x="136" y="168" width="72" height="17" rx="3" fill="#d97706"/>
+          <text x="172" y="180" text-anchor="middle" font-size="11" fill="white" font-weight="bold">DIAGONAL</text>
+          <!-- etiqueta zapata izq -->
+          <rect x="2" y="228" width="50" height="17" rx="3" fill="#9e8060"/>
+          <text x="27" y="240" text-anchor="middle" font-size="11" fill="white" font-weight="bold">ZAPATA</text>
+          <line x1="52" y1="237" x2="62" y2="237" stroke="#9e8060" stroke-width="1.5"/>
+          <!-- etiqueta zapata der -->
+          <rect x="348" y="228" width="50" height="17" rx="3" fill="#9e8060"/>
+          <text x="373" y="240" text-anchor="middle" font-size="11" fill="white" font-weight="bold">ZAPATA</text>
+          <line x1="338" y1="237" x2="348" y2="237" stroke="#9e8060" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <p style="font-size:.85rem;color:var(--muted);text-align:center">
+        Las flechas rojas representan la <strong style="color:#dc2626">carga</strong> que soporta la estructura.
+        Cada elemento trabaja a un esfuerzo distinto según su posición y función.
+      </p>`
     },
     {
       heading: 'Tipos de esfuerzos',
