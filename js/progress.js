@@ -3,9 +3,10 @@
 // =====================================================
 
 const Progress = (() => {
-  const LOCAL_KEY       = 'tyd2_progress';
-  const IN_PROGRESS_KEY = 'tyd2_inprogress';
-  const VISITED_KEY     = 'tyd2_visited';
+  const LOCAL_KEY         = 'tyd2_progress';
+  const IN_PROGRESS_KEY   = 'tyd2_inprogress';
+  const VISITED_KEY       = 'tyd2_visited';
+  const SHEET_ANSWERS_KEY = 'tyd2_sheet_answers';
 
   // ── Almacenamiento local ──────────────────────────
 
@@ -207,6 +208,26 @@ const Progress = (() => {
       });
       if (changed) _saveAll(all);
 
+      // Guardar respuestas de ejercicios por unidad para reconstruir inprogress
+      const sheetAnswers = {};
+      response.events.forEach(ev => {
+        const unit   = ev['Unidad'];
+        const type   = ev['Tipo'];
+        const detail = ev['Detalle'] || '';
+        if (type !== 'ejercicio' || !unit) return;
+        const [qid, resultado] = detail.split(':');
+        if (!qid) return;
+        if (!sheetAnswers[unit]) sheetAnswers[unit] = [];
+        // Guardar solo la última respuesta a cada pregunta (puede haber reintentos)
+        const existing = sheetAnswers[unit].findIndex(a => a.id === qid);
+        const entry = { id: qid, correct: resultado === 'correcto' };
+        if (existing >= 0) sheetAnswers[unit][existing] = entry;
+        else sheetAnswers[unit].push(entry);
+      });
+      try {
+        localStorage.setItem(SHEET_ANSWERS_KEY, JSON.stringify(sheetAnswers));
+      } catch {}
+
       if (onDone) onDone();
     };
 
@@ -296,10 +317,19 @@ const Progress = (() => {
     }, 12000);
   }
 
+  /** Devuelve las respuestas del Sheet para una unidad [{id, correct}] */
+  function getSheetAnswers(unitId) {
+    try {
+      const all = JSON.parse(localStorage.getItem(SHEET_ANSWERS_KEY)) || {};
+      return all[unitId] || [];
+    } catch { return []; }
+  }
+
   return {
     getUnit, saveUnit, overallPercent,
     saveInProgress, getInProgress, clearInProgress,
     saveVisited, getVisited,
+    getSheetAnswers,
     syncFromSheet,
     sendToSheet, sendEvent,
     fetchTeacherData, fetchTeacherEvents,

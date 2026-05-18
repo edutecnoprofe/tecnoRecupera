@@ -242,23 +242,53 @@
     const params = new URLSearchParams(window.location.search);
     const unitId = params.get('unit') || 'ut1';
 
-    // Sincronizar historial desde Sheets (rellena localStorage si es dispositivo nuevo)
-    Progress.syncFromSheet(user.email, () => {
-      loadUnit(unitId);
+    // 1. Cargar contenido y estado local inmediatamente (sin esperar a Sheets)
+    loadUnit(unitId);
+    _applyVisited(unitId);
 
-      // Restaurar estado visual de pestañas visitadas
-      const visited = Progress.getVisited(unitId);
-    if (visited.teoria) {
+    // 2. Sincronizar con Sheets en fondo (actualiza si es dispositivo nuevo)
+    Progress.syncFromSheet(user.email, () => {
+      _applyVisited(unitId);
+      if (!Progress.getInProgress(unitId) && !Progress.getUnit(unitId).completed) {
+        _restoreInProgressFromSheet(unitId);
+      }
+    });
+  }); // fin load
+
+  function _applyVisited(unitId) {
+    const visited = Progress.getVisited(unitId);
+    if (visited.teoria && !theoryEventSent) {
       theoryEventSent = true;
       document.querySelector('[data-tab="theory"]').textContent = '📖 Teoría ✓';
     }
-      if (visited.ejemplo) {
-        exampleEventSent = true;
-        document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplos ✓';
-      }
-      _updateTabLocks();
-    }); // fin syncFromSheet
-  }); // fin load
+    if (visited.ejemplo && !exampleEventSent) {
+      exampleEventSent = true;
+      document.querySelector('[data-tab="example"]').textContent = '💡 Ejemplos ✓';
+    }
+    _updateTabLocks();
+  }
+
+  function _restoreInProgressFromSheet(unitId) {
+    const sheetAnswers = Progress.getSheetAnswers(unitId);
+    if (!sheetAnswers.length) return;
+    const unit = currentUnit;
+    if (!unit) return;
+
+    const pool        = unit.exercises || [];
+    const answeredIds = sheetAnswers.map(a => a.id);
+    const answeredExs = answeredIds.map(id => pool.find(e => e.id === id)).filter(Boolean);
+    if (!answeredExs.length) return;
+
+    const remaining = pool.filter(e => !answeredIds.includes(e.id)).sort(() => Math.random() - 0.5);
+    const exercises  = [...answeredExs, ...remaining.slice(0, Math.max(0, 10 - answeredExs.length))];
+    const answers    = sheetAnswers.map(a => ({
+      id: a.id, correct: a.correct,
+      userAnswer: a.correct ? '(restaurado ✓)' : '(restaurado ✗)',
+    }));
+    const score = answers.filter(a => a.correct).length;
+
+    Progress.saveInProgress(unitId, exercises.map(e => e.id), answeredExs.length, answers, score);
+  }
 </script>
 
 </body>
