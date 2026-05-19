@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recuperación TyD · 2.º ESO</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- GIS se carga async; el código espera activamente a que esté listo -->
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <style>
+    /* Spinner de carga inicial */
+    #boot-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 1rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: #fff;
+      font-size: .95rem;
+    }
+    #boot-spinner .spin {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    /* Formulario de acceso manual (fallback si GIS falla) */
+    .manual-form { display: flex; flex-direction: column; gap: .75rem; }
+    .manual-form input {
+      padding: .7rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: .95rem;
+      outline: none;
+    }
+    .manual-form input:focus { border-color: #4f46e5; }
+    .manual-note {
+      font-size: .8rem;
+      color: #64748b;
+      margin-top: -.25rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── CARGA INICIAL (visible nada más abrir) ─────── -->
+<div id="boot-spinner">
+  <div class="spin"></div>
+  <span>Cargando…</span>
+</div>
+
+<!-- ── LOGIN ─────────────────────────────────────── -->
+<div id="login-screen" class="login-page" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">📡</div>
+    <h1 class="login-title">Recuperación TyD</h1>
+    <p class="login-subtitle" id="login-subtitle">2.º ESO — Tecnología y Digitalización</p>
+
+    <!-- Estado: esperando GIS -->
+    <div id="gis-loading" style="margin:1rem 0;color:#64748b;font-size:.9rem">
+      <div class="spinner" style="width:28px;height:28px;margin:0 auto .5rem"></div>
+      Conectando con Google…
+    </div>
+
+    <!-- Botón de Google (aparece cuando GIS está listo) -->
+    <div id="g-signin-btn" style="display:none;justify-content:center"></div>
+
+    <!-- Formulario manual (fallback si GIS no carga) -->
+    <div id="manual-login" style="display:none">
+      <div class="alert alert-info" style="margin-bottom:1rem;font-size:.85rem">
+        ⚠️ No se pudo conectar con Google. Puedes entrar con tu nombre igualmente.
+        Los ejercicios funcionarán, pero el progreso no se guardará en el servidor.
+      </div>
+      <div class="manual-form">
+        <input type="text"  id="manual-name"  placeholder="Tu nombre completo" maxlength="60">
+        <input type="email" id="manual-email" placeholder="Tu correo del instituto" maxlength="80">
+        <button class="btn btn-primary" style="justify-content:center"
+                onclick="manualLogin()">Entrar</button>
+      </div>
+    </div>
+
+    <p class="login-hint" id="login-hint">
+      Inicia sesión con tu cuenta de Google del instituto.<br>
+      Tus resultados quedarán guardados.
+    </p>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────────── -->
+<div id="app-screen" style="display:none">
+  <nav class="topbar">
+    <div class="topbar-brand">📡 Recuperación TyD</div>
+    <div class="topbar-user">
+      <span id="user-name"></span>
+      <img id="user-avatar" src="" alt="avatar" style="display:none">
+      <button class="btn btn-ghost" onclick="Auth.signOut()"
+              style="padding:.3rem .8rem;font-size:.82rem">Salir</button>
+    </div>
+  </nav>
+  <main class="page">
+    <div class="greeting">
+      <h1>¡Hola, <span id="greeting-name">alumno/a</span>! 👋</h1>
+      <p>Elige una unidad para repasar la teoría y practicar los ejercicios.</p>
+    </div>
+    <div class="unit-grid" id="unit-grid"></div>
+    <div class="teacher-link">
+      <a href="teacher.html">🔐 Acceso del profesorado</a>
+    </div>
+  </main>
+</div>
+
+<!-- ── SCRIPTS ───────────────────────────────────── -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/progress.js"></script>
+
+<script>
+  const UNIT_META = {
+    ut1: { title: 'Búsqueda de información en Internet', icon: '🔍', color: 'var(--ut1)',
+           desc: 'Operadores de Google, tipos de archivo, cálculos y definiciones.' },
+    ut4: { title: 'Estructuras',                          icon: '🏗️', color: 'var(--ut4)',
+           desc: 'Esfuerzos, tipos de estructuras y el triángulo indeformable.' },
+    ut5: { title: 'Introducción a la electricidad',       icon: '⚡', color: 'var(--ut5)',
+           desc: 'Circuitos, magnitudes eléctricas, Ley de Ohm y tipos de bombillas.' },
+    ut6: { title: 'Dibujo técnico: vistas',               icon: '📐', color: 'var(--ut6)',
+           desc: 'Sistema diédrico, alzado, planta, perfil y líneas ocultas.' },
+  };
+
+  // ── Renderiza tarjetas ──────────────────────────────
+  function renderUnitGrid() {
+    const grid = document.getElementById('unit-grid');
+    grid.innerHTML = '';
+    CONFIG.UNITS.forEach(uid => {
+      const meta = UNIT_META[uid];
+      const prog = Progress.getUnit(uid);
+      const pct  = prog.completed ? Math.round((prog.score / prog.total) * 100) : 0;
+      const label = prog.completed ? `${prog.score}/${prog.total} correctas (${pct}%)` : 'Sin empezar';
+      const card = document.createElement('a');
+      card.href = `unit.html?unit=${uid}`;
+      card.className = 'unit-card';
+      card.style.setProperty('--unit-color', meta.color);
+      card.innerHTML = `
+        <span class="unit-card-icon">${meta.icon}</span>
+        <span class="unit-card-label">${uid.replace('ut','Unidad ').toUpperCase()}</span>
+        <span class="unit-card-title">${meta.title}</span>
+        <span class="unit-card-desc">${meta.desc}</span>
+        <div class="card-progress">
+          <div class="card-progress-bar">
+            <div class="card-progress-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="card-progress-label">${label}</div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // ── Muestra la app ──────────────────────────────────
+  function showApp(user) {
+    document.getElementById('boot-spinner').style.display   = 'none';
+    document.getElementById('login-screen').style.display   = 'none';
+    document.getElementById('app-screen').style.display     = 'block';
+    document.getElementById('login-subtitle').textContent   = CONFIG.COURSE_NAME;
+    document.getElementById('user-name').textContent        = user.name;
+    document.getElementById('greeting-name').textContent    = user.name.split(' ')[0];
+    const av = document.getElementById('user-avatar');
+    if (user.picture) { av.src = user.picture; av.style.display = 'block'; }
+    renderUnitGrid();
+  }
+
+  // ── Muestra pantalla de login ───────────────────────
+  function showLogin() {
+    document.getElementById('boot-spinner').style.display  = 'none';
+    document.getElementById('login-screen').style.display  = 'flex';
+    document.getElementById('login-subtitle').textContent  = CONFIG.COURSE_NAME;
+  }
+
+  // ── Fallback: acceso manual sin Google ─────────────
+  function manualLogin() {
+    const name  = document.getElementById('manual-name').value.trim();
+    const email = document.getElementById('manual-email').value.trim();
+    if (!name) { document.getElementById('manual-name').focus(); return; }
+    const user = { name, email: email || 'sin-email@manual', picture: null, sub: 'manual' };
+    Auth.setUser(user);
+    showApp(user);
+  }
+
+  // ── Esperar a GIS con reintento ─────────────────────
+  // Resuelve la race condition: GIS carga async y puede no estar
+  // listo cuando salta el evento 'load'. Reintentamos cada 100 ms
+  // hasta 6 s; si no llega, mostramos el formulario manual.
+  function waitForGIS(onReady, onFail, maxMs = 6000) {
+    const started = Date.now();
+    function check() {
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        onReady();
+      } else if (Date.now() - started < maxMs) {
+        setTimeout(check, 100);
+      } else {
+        onFail();
+      }
+    }
+    check();
+  }
+
+  // ── Inicialización ──────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Si ya hay sesión guardada → directo a la app
+    const existing = Auth.getUser();
+    if (existing) { showApp(existing); return; }
+
+    // 2. Sin sesión → mostrar login y esperar a GIS
+    showLogin();
+
+    waitForGIS(
+      // GIS cargó correctamente
+      () => {
+        document.getElementById('gis-loading').style.display    = 'none';
+        const btn = document.getElementById('g-signin-btn');
+        btn.style.display = 'flex';
+
+        Auth.init((user) => showApp(user));
+        Auth.renderButton(btn);
+        Auth.prompt();
+      },
+      // GIS no cargó tras 6 s → formulario manual
+      () => {
+        document.getElementById('gis-loading').style.display    = 'none';
+        document.getElementById('manual-login').style.display   = 'block';
+        document.getElementById('login-hint').textContent =
+          'Introduce tu nombre para acceder. Los ejercicios funcionarán sin conexión.';
+      }
+    );
+  });
+</script>
+
+</body>
+</html>
