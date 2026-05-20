@@ -20,5 +20,5 @@ const CONFIG = {
   COURSE_NAME: '2.º ESO — Tecnología y Digitalización',
 
   // Unidades activas (en orden de aparición)
-  UNITS: ['ut1', 'ut4', 'ut5', 'ut6'],
+  UNITS: ['ut1', 'ut4', 'ut5'], // 'ut6' oculta temporalmente
 };
